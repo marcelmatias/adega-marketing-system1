@@ -1,0 +1,285 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-gear"></i> Configuracoes</h4>
+    <small class="text-muted"><%= adega.nome %></small>
+  </div>
+
+  <% if (flash) { %>
+    <div class="alert alert-<%= flash.type %> alert-dismissible fade show"><%= flash.text %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  <% } %>
+  <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show"><%= success_msg.join(', ') %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  <% } %>
+  <% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show"><%= error_msg.join(', ') %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  <% } %>
+
+  <form action="/admin/configuracoes" method="POST" enctype="multipart/form-data">
+    <div class="row g-4">
+      <!-- Perfil da Adega -->
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-shop"></i> Perfil da Adega</h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-2 text-center">
+                <% if (adega.logo) { %>
+                  <img src="<%= adega.logo %>" class="rounded mb-2" style="max-width:120px;max-height:120px;object-fit:contain;" alt="Logo">
+                <% } else { %>
+                  <div class="rounded bg-light d-flex align-items-center justify-content-center mb-2" style="width:120px;height:120px;margin:0 auto;">
+                    <i class="bi bi-image text-muted" style="font-size:3rem;"></i>
+                  </div>
+                <% } %>
+                <input type="file" class="form-control form-control-sm" name="logo" accept="image/*">
+                <div class="form-text">PNG, JPG ou SVG. Max 5MB.</div>
+              </div>
+              <div class="col-md-10">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Nome da Adega *</label>
+                    <input type="text" class="form-control" name="nome" value="<%= adega.nome %>" required>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">WhatsApp</label>
+                    <input type="text" class="form-control" name="whatsapp" value="<%= adega.whatsapp || '' %>" placeholder="(11) 99999-8888">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Telefone</label>
+                    <input type="text" class="form-control" name="telefone" value="<%= adega.telefone || '' %>" placeholder="(11) 3333-4444">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" value="<%= adega.email || '' %>" placeholder="contato@adega.com.br">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">CEP</label>
+                    <input type="text" class="form-control" name="endereco[cep]" value="<%= adega.endereco.cep || '' %>" placeholder="01234-567">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Logradouro</label>
+                    <input type="text" class="form-control" name="endereco[logradouro]" value="<%= adega.endereco.logradouro || '' %>" placeholder="Rua, Avenida...">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Numero</label>
+                    <input type="text" class="form-control" name="endereco[numero]" value="<%= adega.endereco.numero || '' %>" placeholder="123">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Bairro</label>
+                    <input type="text" class="form-control" name="endereco[bairro]" value="<%= adega.endereco.bairro || '' %>" placeholder="Centro">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Cidade</label>
+                    <input type="text" class="form-control" name="endereco[cidade]" value="<%= adega.endereco.cidade || '' %>" placeholder="Sao Paulo">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <input type="text" class="form-control" name="endereco[estado]" value="<%= adega.endereco.estado || '' %>" placeholder="SP" maxlength="2">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YouTube -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="bi bi-youtube text-danger"></i> YouTube</h6>
+            <div>
+              <% if (youtubeConectado) { %>
+                <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Conectado</span>
+              <% } else { %>
+                <span class="badge bg-secondary me-2"><i class="bi bi-x-circle"></i> Desconectado</span>
+              <% } %>
+              <a href="/auth/youtube" class="btn btn-sm btn-danger <%= !youtubeClientIdOk ? 'disabled' : '' %>">
+                <i class="bi bi-link-45deg"></i> Conectar YouTube
+              </a>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mb-3 form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="youtubeMock" name="youtubeConfig[mock]" value="true" <%= adega.youtubeConfig.mock ? 'checked' : '' %>>
+              <label class="form-check-label" for="youtubeMock">Modo simulado (mock)</label>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Client ID</label>
+              <input type="text" class="form-control" name="youtubeConfig[clientId]" value="<%= adega.youtubeConfig.clientId %>" placeholder="Client ID OAuth">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Client Secret</label>
+              <input type="password" class="form-control" name="youtubeConfig[clientSecret]" value="<%= adega.youtubeConfig.clientSecret %>" placeholder="Client Secret OAuth">
+            </div>
+
+            <hr class="my-3">
+
+            <div class="mb-3">
+              <label class="form-label">Playlist</label>
+              <% if (youtubePlaylists.length > 0) { %>
+                <div class="input-group">
+                  <select class="form-select" name="youtubeConfig[playlistId]">
+                    <option value="">Nenhuma</option>
+                    <% youtubePlaylists.forEach(function(p) { %>
+                      <option value="<%= p.id %>" <%= adega.youtubeConfig.playlistId === p.id ? 'selected' : '' %>><%= p.title %> (<%= p.itemCount %> videos)</option>
+                    <% }) %>
+                  </select>
+                  <button class="btn btn-outline-danger" type="button" onclick="document.getElementById('novaPlaylistInput').classList.toggle('d-none')">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+                <div id="novaPlaylistInput" class="input-group mt-2 d-none">
+                  <input type="text" class="form-control" id="playlistTitle" placeholder="Nome da nova playlist" maxlength="100">
+                  <button class="btn btn-danger" type="button" onclick="criarPlaylist()">Criar</button>
+                </div>
+              <% } else { %>
+                <input type="text" class="form-control" name="youtubeConfig[playlistId]" value="<%= adega.youtubeConfig.playlistId %>" placeholder="Playlist padrão">
+                <div class="form-text">Conecte-se ao YouTube para selecionar ou criar playlists.</div>
+              <% } %>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Canal</label>
+              <% if (youtubeChannels.length > 0) { %>
+                <select class="form-select" name="youtubeConfig[channelId]">
+                  <option value="">Nenhum</option>
+                  <% youtubeChannels.forEach(function(c) { %>
+                    <option value="<%= c.id %>" <%= adega.youtubeConfig.channelId === c.id ? 'selected' : '' %>><%= c.title %></option>
+                  <% }) %>
+                </select>
+              <% } else { %>
+                <input type="text" class="form-control" name="youtubeConfig[channelId]" value="<%= adega.youtubeConfig.channelId %>" placeholder="Canal YouTube">
+                <div class="form-text">Conecte-se ao YouTube para selecionar um canal.</div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canva -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-palette text-primary"></i> Canva</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-3 form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="canvaMock" name="canvaConfig[mock]" value="true" <%= adega.canvaConfig.mock ? 'checked' : '' %>>
+              <label class="form-check-label" for="canvaMock">Modo simulado (mock)</label>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">API Key</label>
+              <input type="text" class="form-control" name="canvaConfig[apiKey]" value="<%= adega.canvaConfig.apiKey %>" placeholder="Chave da API Canva">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">API Secret</label>
+              <input type="password" class="form-control" name="canvaConfig[apiSecret]" value="<%= adega.canvaConfig.apiSecret %>" placeholder="API Secret">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">ID da Pasta</label>
+              <input type="text" class="form-control" name="canvaConfig[folderId]" value="<%= adega.canvaConfig.folderId %>" placeholder="Pasta de designs">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">ID do Template</label>
+              <input type="text" class="form-control" name="canvaConfig[brandTemplateId]" value="<%= adega.canvaConfig.brandTemplateId %>" placeholder="Template de marca">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instagram -->
+    <div class="row g-4 mt-2">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="bi bi-instagram text-danger"></i> Instagram</h6>
+            <div>
+              <% if (instagramConectado) { %>
+                <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Conectado</span>
+              <% } else { %>
+                <span class="badge bg-secondary me-2"><i class="bi bi-x-circle"></i> Desconectado</span>
+              <% } %>
+              <a href="/auth/instagram" class="btn btn-sm btn-danger <%= !instagramAppOk ? 'disabled' : '' %>">
+                <i class="bi bi-link-45deg"></i> Conectar Instagram
+              </a>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mb-3 form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="igMock" name="instagramConfig[mock]" value="true" <%= adega.instagramConfig?.mock ? 'checked' : '' %>>
+              <label class="form-check-label" for="igMock">Modo simulado (mock)</label>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Facebook App ID</label>
+              <input type="text" class="form-control" name="instagramConfig[facebookAppId]" value="<%= adega.instagramConfig?.facebookAppId || '' %>" placeholder="ID do seu aplicativo no Facebook Developers">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Facebook App Secret</label>
+              <input type="password" class="form-control" name="instagramConfig[facebookAppSecret]" value="<%= adega.instagramConfig?.facebookAppSecret || '' %>" placeholder="Secret do seu aplicativo">
+            </div>
+            <hr class="my-3">
+            <div class="mb-3">
+              <label class="form-label">ID da Conta Business do Instagram <small class="text-muted">(opcional - preenchido automaticamente pelo OAuth)</small></label>
+              <input type="text" class="form-control" name="instagramConfig[igUserId]" value="<%= adega.instagramConfig?.igUserId || '' %>" placeholder="Ex: 17841405822304945">
+              <div class="form-text">Deixe em branco para deteccao automatica durante o OAuth.</div>
+            </div>
+            <button type="button" class="btn btn-outline-danger" onclick="testarInstagram()">
+              <i class="bi bi-plug"></i> Testar Conexao
+            </button>
+            <span id="igStatus" class="ms-2"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-check-lg"></i> Salvar Configuracoes</button>
+      <a href="/admin" class="btn btn-outline-secondary btn-lg ms-2">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function testarInstagram() {
+  const btn = document.querySelector('button[onclick="testarInstagram()"]');
+  const status = document.getElementById('igStatus');
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testando...';
+  api('/api/instagram/testar')
+    .then(data => {
+      if (data.ok) {
+        status.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> ' + (data.message || 'Conectado') + '</span>';
+      } else {
+        status.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> ' + (data.message || 'Falha') + '</span>';
+      }
+    })
+    .catch(err => {
+      status.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Erro: ' + err.message + '</span>';
+    })
+    .finally(() => { btn.disabled = false; });
+}
+
+function criarPlaylist() {
+  const input = document.getElementById('playlistTitle');
+  const titulo = input.value.trim();
+  if (!titulo) { alert('Digite um nome para a playlist.'); return; }
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/admin/configuracoes/criar-playlist';
+  const field = document.createElement('input');
+  field.type = 'hidden';
+  field.name = 'titulo';
+  field.value = titulo;
+  form.appendChild(field);
+  document.body.appendChild(form);
+  form.submit();
+}
+</script>
+<%- include('../partials/footer') %>

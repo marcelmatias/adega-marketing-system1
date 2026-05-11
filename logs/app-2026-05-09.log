@@ -1,0 +1,285 @@
+[2026-05-09T18:11:23.982Z] [ERROR] Erro no seed: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-05-09T18:12:43.820Z] [INFO] Conectado ao MongoDB
+[2026-05-09T18:12:43.853Z] [INFO] Colecoes limpas
+[2026-05-09T18:12:43.955Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T18:12:45.188Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T18:12:45.211Z] [INFO] 10 produtos criados
+[2026-05-09T18:12:45.224Z] [INFO] 5 campanhas criadas
+[2026-05-09T18:13:21.691Z] [INFO] MongoDB conectado
+[2026-05-09T18:13:21.696Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T18:13:23.611Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-09T18:13:49.149Z] [ERROR] Erro login view: Cannot read properties of undefined (reading '_id')
+[2026-05-09T18:17:25.477Z] [INFO] Conectado ao MongoDB
+[2026-05-09T18:17:25.508Z] [INFO] Colecoes limpas
+[2026-05-09T18:17:25.530Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T18:17:26.766Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T18:17:26.784Z] [INFO] 10 produtos criados
+[2026-05-09T18:17:26.793Z] [INFO] 5 campanhas criadas
+[2026-05-09T18:17:32.486Z] [INFO] MongoDB conectado
+[2026-05-09T18:17:32.491Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T18:17:43.511Z] [ERROR] Erro no login view: Cannot read properties of undefined (reading '_id')
+[2026-05-09T18:20:31.043Z] [INFO] Conectado ao MongoDB
+[2026-05-09T18:20:31.075Z] [INFO] Colecoes limpas
+[2026-05-09T18:20:31.096Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T18:20:32.408Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T18:20:32.426Z] [INFO] 10 produtos criados
+[2026-05-09T18:20:32.436Z] [INFO] 5 campanhas criadas
+[2026-05-09T18:20:40.827Z] [INFO] MongoDB conectado
+[2026-05-09T18:20:43.372Z] [ERROR] Erro no login view: Cannot read properties of undefined (reading '_id')
+[2026-05-09T18:20:56.570Z] [INFO] MongoDB conectado
+[2026-05-09T18:20:56.574Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T18:20:59.089Z] [ERROR] sessionLogin: user e undefined
+[2026-05-09T18:23:10.173Z] [INFO] MongoDB conectado
+[2026-05-09T18:56:16.400Z] [ERROR] sessionLogin: user e undefined
+[2026-05-09T19:31:25.867Z] [INFO] Conectado ao MongoDB
+[2026-05-09T19:31:25.903Z] [INFO] Colecoes limpas
+[2026-05-09T19:31:25.922Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T19:31:27.172Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T19:31:27.194Z] [INFO] 10 produtos criados
+[2026-05-09T19:31:27.207Z] [INFO] 5 campanhas criadas
+[2026-05-09T19:31:34.215Z] [INFO] MongoDB conectado
+[2026-05-09T19:31:34.220Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T19:31:49.829Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:32:12.405Z] [INFO] MongoDB conectado
+[2026-05-09T19:32:12.410Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T19:32:36.947Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:32:50.441Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:33:32.869Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:41:33.008Z] [INFO] Conectado ao MongoDB
+[2026-05-09T19:41:33.038Z] [INFO] Colecoes limpas
+[2026-05-09T19:41:33.060Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T19:41:34.330Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T19:41:34.352Z] [INFO] 10 produtos criados
+[2026-05-09T19:41:34.365Z] [INFO] 5 campanhas criadas
+[2026-05-09T19:41:47.514Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:41:47.649Z] [ERROR] Nao encontrado - /admin/configuracoes | /admin/configuracoes
+[2026-05-09T19:42:39.464Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:42:59.733Z] [INFO] MongoDB conectado
+[2026-05-09T19:43:16.629Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:43:16.636Z] [ERROR] Nao encontrado - /admin/configuracoes | /admin/configuracoes
+[2026-05-09T19:43:50.930Z] [INFO] MongoDB conectado
+[2026-05-09T19:43:50.935Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T19:43:53.258Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:44:26.372Z] [INFO] MongoDB conectado
+[2026-05-09T19:44:26.376Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T19:44:29.713Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T19:44:29.744Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T19:45:15.382Z] [INFO] MongoDB conectado
+[2026-05-09T19:45:15.386Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T19:45:18.752Z] [INFO] Login API: admin@adega.com
+[2026-05-09T19:45:18.775Z] [INFO] [CANVA MOCK] Design criado: Teste (video)
+[2026-05-09T19:47:29.077Z] [INFO] Conectado ao MongoDB
+[2026-05-09T19:47:29.114Z] [INFO] Colecoes limpas
+[2026-05-09T19:47:29.134Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T19:47:30.366Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T19:47:30.385Z] [INFO] 10 produtos criados
+[2026-05-09T19:47:30.394Z] [INFO] 5 campanhas criadas
+[2026-05-09T19:47:39.356Z] [INFO] MongoDB conectado
+[2026-05-09T19:47:39.361Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T20:02:14.538Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T20:38:55.787Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T20:40:55.398Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T20:42:59.606Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T20:44:53.404Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T20:45:25.906Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-09T20:45:49.445Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-09T20:46:02.064Z] [INFO] MongoDB conectado
+[2026-05-09T20:46:02.069Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:20:39.052Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:20:51.138Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:23:43.044Z] [INFO] Conectado ao MongoDB
+[2026-05-09T21:23:43.080Z] [INFO] Colecoes limpas
+[2026-05-09T21:23:43.101Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T21:23:44.353Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T21:23:44.371Z] [INFO] 10 produtos criados
+[2026-05-09T21:23:44.381Z] [INFO] 5 campanhas criadas
+[2026-05-09T21:23:58.264Z] [INFO] MongoDB conectado
+[2026-05-09T21:23:58.269Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:24:01.660Z] [INFO] Login API: admin@adega.com
+[2026-05-09T21:24:27.751Z] [INFO] MongoDB conectado
+[2026-05-09T21:24:27.756Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:24:31.065Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:25:01.225Z] [INFO] MongoDB conectado
+[2026-05-09T21:25:01.229Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:25:04.633Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:25:50.616Z] [INFO] MongoDB conectado
+[2026-05-09T21:25:50.621Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:25:53.108Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:26:01.948Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:26:29.867Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:46:02.975Z] [INFO] Conectado ao MongoDB
+[2026-05-09T21:46:03.007Z] [INFO] Colecoes limpas
+[2026-05-09T21:46:03.030Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T21:46:04.284Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T21:46:04.302Z] [INFO] 10 produtos criados
+[2026-05-09T21:46:04.311Z] [INFO] 5 campanhas criadas
+[2026-05-09T21:46:17.420Z] [INFO] MongoDB conectado
+[2026-05-09T21:46:20.709Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:46:20.718Z] [ERROR] Nao encontrado - /auth/youtube | /auth/youtube
+[2026-05-09T21:46:20.725Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\configuracoes.ejs:10
+    8|   </div>
+    9| 
+ >> 10|   <% if (flash) { %>
+    11|     <div class="alert alert-<%= flash.type %> alert-dismissible fade show"><%= flash.text %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    12|   <% } %>
+    13|   <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+
+flash is not defined | /admin/configuracoes
+[2026-05-09T21:46:40.812Z] [INFO] MongoDB conectado
+[2026-05-09T21:46:57.749Z] [INFO] MongoDB conectado
+[2026-05-09T21:46:57.753Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:47:01.131Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:47:37.617Z] [INFO] MongoDB conectado
+[2026-05-09T21:47:37.621Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:47:40.997Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:48:12.358Z] [INFO] MongoDB conectado
+[2026-05-09T21:48:12.363Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:48:15.747Z] [INFO] Login API: admin@adega.com
+[2026-05-09T21:48:15.772Z] [INFO] [YOUTUBE MOCK] Video publicado: Test
+[2026-05-09T21:48:59.349Z] [INFO] MongoDB conectado
+[2026-05-09T21:48:59.354Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:49:03.471Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:49:50.990Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:50:12.187Z] [INFO] YouTube OAuth concluido para adega: Adega Exemplo
+[2026-05-09T21:50:21.248Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:52:41.209Z] [INFO] MongoDB conectado
+[2026-05-09T21:52:41.213Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:52:44.575Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:55:51.684Z] [INFO] Conectado ao MongoDB
+[2026-05-09T21:55:51.720Z] [INFO] Colecoes limpas
+[2026-05-09T21:55:51.740Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T21:55:52.987Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T21:55:53.008Z] [INFO] 10 produtos criados
+[2026-05-09T21:55:53.022Z] [INFO] 5 campanhas criadas
+[2026-05-09T21:56:14.117Z] [INFO] MongoDB conectado
+[2026-05-09T21:56:14.121Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:56:17.615Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:56:18.083Z] [INFO] Login API: admin@adega.com
+[2026-05-09T21:56:18.099Z] [INFO] [YOUTUBE MOCK] Video publicado: Test
+[2026-05-09T21:57:23.095Z] [INFO] MongoDB conectado
+[2026-05-09T21:57:23.100Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T21:57:34.035Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T21:58:21.527Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:58:27.714Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T21:58:55.650Z] [INFO] YouTube OAuth concluido para adega: Adega Exemplo
+[2026-05-09T21:59:05.345Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:01:39.121Z] [INFO] Conectado ao MongoDB
+[2026-05-09T22:01:39.151Z] [INFO] Colecoes limpas
+[2026-05-09T22:01:39.173Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T22:01:40.419Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T22:01:40.441Z] [INFO] 10 produtos criados
+[2026-05-09T22:01:40.454Z] [INFO] 5 campanhas criadas
+[2026-05-09T22:01:53.535Z] [INFO] MongoDB conectado
+[2026-05-09T22:01:56.868Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:01:56.881Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\configuracoes.ejs:57
+    55|             <div class="mb-3">
+    56|               <label class="form-label">Playlist</label>
+ >> 57|               <% if (youtubePlaylists.length > 0) { %>
+    58|                 <select class="form-select" name="youtubeConfig[playlistId]">
+    59|                   <option value="">Nenhuma</option>
+    60|                   <% youtubePlaylists.forEach(function(p) { %>
+
+youtubePlaylists is not defined | /admin/configuracoes
+[2026-05-09T22:02:18.708Z] [INFO] MongoDB conectado
+[2026-05-09T22:02:18.713Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:02:46.585Z] [INFO] MongoDB conectado
+[2026-05-09T22:02:46.590Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:02:49.984Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:03:15.921Z] [INFO] MongoDB conectado
+[2026-05-09T22:03:15.926Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:03:19.246Z] [INFO] Login API: admin@adega.com
+[2026-05-09T22:04:03.640Z] [INFO] MongoDB conectado
+[2026-05-09T22:04:03.644Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:06:40.279Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:07:12.510Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:07:16.482Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:07:34.947Z] [INFO] YouTube OAuth concluido para adega: Adega Exemplo
+[2026-05-09T22:07:41.144Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:09:29.760Z] [INFO] Conectado ao MongoDB
+[2026-05-09T22:09:29.793Z] [INFO] Colecoes limpas
+[2026-05-09T22:09:29.816Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T22:09:31.113Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T22:09:31.134Z] [INFO] 10 produtos criados
+[2026-05-09T22:09:31.143Z] [INFO] 5 campanhas criadas
+[2026-05-09T22:09:43.639Z] [INFO] MongoDB conectado
+[2026-05-09T22:09:43.643Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:09:46.826Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:10:12.119Z] [INFO] MongoDB conectado
+[2026-05-09T22:10:12.127Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:10:15.253Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:10:15.273Z] [INFO] [YOUTUBE MOCK] Playlist criada: Minha Playlist Teste
+[2026-05-09T22:10:15.287Z] [INFO] Playlist criada: Minha Playlist Teste (mock_playlist_1778364615273)
+[2026-05-09T22:11:07.830Z] [INFO] MongoDB conectado
+[2026-05-09T22:11:07.835Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:11:14.562Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:11:37.674Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:11:54.556Z] [INFO] YouTube OAuth concluido para adega: Adega Exemplo
+[2026-05-09T22:12:01.065Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:12:07.305Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-09T22:14:05.197Z] [INFO] Conectado ao MongoDB
+[2026-05-09T22:14:05.228Z] [INFO] Colecoes limpas
+[2026-05-09T22:14:05.250Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T22:14:06.485Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T22:14:06.507Z] [INFO] 10 produtos criados
+[2026-05-09T22:14:06.521Z] [INFO] 5 campanhas criadas
+[2026-05-09T22:14:26.671Z] [INFO] MongoDB conectado
+[2026-05-09T22:14:26.676Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:14:30.263Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:14:30.697Z] [INFO] Login API: admin@adega.com
+[2026-05-09T22:14:30.741Z] [INFO] [YOUTUBE MOCK] Video publicado: Lancamento Vinho Chileno
+[2026-05-09T22:14:30.755Z] [INFO] [CAMPANHA] Campanha publicada: Lancamento Vinho Chileno (adega: 69ffb1ad62cf778b20063f61)
+[2026-05-09T22:14:30.755Z] [INFO] Campanha publicada no YouTube: Lancamento Vinho Chileno
+[2026-05-09T22:18:21.238Z] [INFO] Conectado ao MongoDB
+[2026-05-09T22:18:21.269Z] [INFO] Colecoes limpas
+[2026-05-09T22:18:21.297Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T22:18:22.549Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T22:18:22.567Z] [INFO] 10 produtos criados
+[2026-05-09T22:18:22.576Z] [INFO] 5 campanhas criadas
+[2026-05-09T22:18:44.777Z] [INFO] MongoDB conectado
+[2026-05-09T22:18:44.782Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:18:48.335Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:18:48.778Z] [INFO] Login API: admin@adega.com
+[2026-05-09T22:18:48.824Z] [INFO] [YOUTUBE MOCK] Video publicado: Natal na Adega
+[2026-05-09T22:18:48.837Z] [INFO] [CANVA MOCK] Design criado: Natal na Adega (carrossel)
+[2026-05-09T22:18:48.840Z] [INFO] [CAMPANHA] Campanha publicada: Natal na Adega (adega: 69ffb2ad662481976a70f274)
+[2026-05-09T22:18:48.841Z] [INFO] Campanha publicada no YouTube: Natal na Adega
+[2026-05-09T22:21:50.917Z] [INFO] Conectado ao MongoDB
+[2026-05-09T22:21:50.959Z] [INFO] Colecoes limpas
+[2026-05-09T22:21:50.979Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T22:21:52.220Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T22:21:52.239Z] [INFO] 10 produtos criados
+[2026-05-09T22:21:52.253Z] [INFO] 5 campanhas criadas
+[2026-05-09T22:22:06.800Z] [INFO] Conectado ao MongoDB
+[2026-05-09T22:22:06.842Z] [INFO] Colecoes limpas
+[2026-05-09T22:22:06.862Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-09T22:22:08.102Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-09T22:22:08.121Z] [INFO] 10 produtos criados
+[2026-05-09T22:22:08.136Z] [INFO] 5 campanhas criadas
+[2026-05-09T22:22:08.386Z] [INFO] 251 vendas criadas (ultimos 30 dias)
+[2026-05-09T22:22:08.524Z] [INFO] 266 registros financeiros criados (vendas + despesas)
+[2026-05-09T22:22:15.811Z] [INFO] MongoDB conectado
+[2026-05-09T22:22:15.816Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:22:33.521Z] [INFO] MongoDB conectado
+[2026-05-09T22:22:58.937Z] [INFO] MongoDB conectado
+[2026-05-09T22:22:58.941Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:23:01.458Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:23:01.583Z] [ERROR] Nao encontrado - /api/financeiro/fluxo | /api/financeiro/fluxo
+[2026-05-09T22:24:05.833Z] [INFO] MongoDB conectado
+[2026-05-09T22:24:05.837Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:24:08.366Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:26:45.122Z] [INFO] MongoDB conectado
+[2026-05-09T22:26:45.126Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-09T22:26:47.689Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-09T22:27:02.110Z] [INFO] Campanha criada: teste
+[2026-05-09T22:27:09.488Z] [INFO] [YOUTUBE MOCK] Video publicado: teste
+[2026-05-09T22:27:09.494Z] [INFO] [CAMPANHA] Campanha publicada: teste (adega: 69ffb38ef34f60b2d2589250)
+[2026-05-09T22:27:09.494Z] [INFO] Campanha publicada no YouTube: teste
+[2026-05-09T22:27:48.677Z] [INFO] [YOUTUBE MOCK] Video publicado: teste
+[2026-05-09T22:27:48.680Z] [INFO] [CAMPANHA] Campanha publicada: teste (adega: 69ffb38ef34f60b2d2589250)
+[2026-05-09T22:27:48.680Z] [INFO] Campanha publicada no YouTube: teste
+[2026-05-09T22:28:08.348Z] [INFO] [YOUTUBE MOCK] Video publicado: Happy Hour Heineken
+[2026-05-09T22:28:08.351Z] [INFO] [CAMPANHA] Campanha publicada: Happy Hour Heineken (adega: 69ffb38ef34f60b2d2589250)
+[2026-05-09T22:28:08.352Z] [INFO] Campanha publicada no YouTube: Happy Hour Heineken
+[2026-05-10T06:40:39.807Z] [INFO] [YOUTUBE MOCK] Video publicado: teste
+[2026-05-10T06:40:39.812Z] [INFO] [CAMPANHA] Campanha publicada: teste (adega: 69ffb38ef34f60b2d2589250)
+[2026-05-10T06:40:39.812Z] [INFO] Campanha publicada no YouTube: teste

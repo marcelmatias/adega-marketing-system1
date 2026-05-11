@@ -1,0 +1,132 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-broadcast"></i> Live no YouTube</h4>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+          <div id="liveStatusIndicator" class="mb-3">
+            <span class="badge bg-secondary" style="font-size:1rem;"><i class="bi bi-circle"></i> Offline</span>
+          </div>
+          <div id="liveActions">
+            <button class="btn btn-danger btn-lg me-2" onclick="iniciarLive()"><i class="bi bi-play-fill"></i> Iniciar Live</button>
+            <button class="btn btn-outline-danger btn-lg d-none" onclick="pararLive()"><i class="bi bi-stop-fill"></i> Encerrar Live</button>
+          </div>
+          <div id="liveInfo" class="mt-4 d-none">
+            <div class="alert alert-info">
+              <p class="mb-1"><strong>URL da Live:</strong> <a id="liveWatchUrl" href="#" target="_blank"></a></p>
+              <p class="mb-0"><small>Compartilhe este link com quem voce deseja que assista.</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-info-circle"></i> Configuracao da Live</h6></div>
+        <div class="card-body small">
+          <ul class="mb-0 ps-3">
+            <li>Privacidade: <strong>Nao listado</strong> (so quem tem o link)</li>
+            <li>Nao remunerado</li>
+            <li>Licenca aberta</li>
+            <li>Nao recomendavel para menores de 18 anos</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h6 class="mb-0"><i class="bi bi-box"></i> Produtos na Live</h6>
+          <button class="btn btn-sm btn-outline-danger" onclick="regenerarSlides()"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-0" id="liveProdCount">Carregando...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function atualizarStatus() {
+  try {
+    const data = await api('/api/live/status');
+    const online = data.online;
+    const indicator = document.getElementById('liveStatusIndicator');
+    const info = document.getElementById('liveInfo');
+    const btnIniciar = document.querySelector('#liveActions .btn-danger');
+    const btnParar = document.querySelector('#liveActions .btn-outline-danger');
+
+    if (online) {
+      indicator.innerHTML = '<span class="badge bg-danger" style="font-size:1rem;"><i class="bi bi-circle-fill"></i> Ao Vivo</span>';
+      info.classList.remove('d-none');
+      document.getElementById('liveWatchUrl').textContent = data.watchUrl;
+      document.getElementById('liveWatchUrl').href = data.watchUrl;
+      btnIniciar.classList.add('d-none');
+      btnParar.classList.remove('d-none');
+    } else {
+      indicator.innerHTML = '<span class="badge bg-secondary" style="font-size:1rem;"><i class="bi bi-circle"></i> Offline</span>';
+      info.classList.add('d-none');
+      btnIniciar.classList.remove('d-none');
+      btnParar.classList.add('d-none');
+    }
+  } catch (err) {
+    showToast('Erro ao verificar status: ' + err.message, 'error');
+  }
+}
+
+async function iniciarLive() {
+  if (!confirm('Iniciar transmissao ao vivo no YouTube?')) return;
+  const btn = document.querySelector('#liveActions .btn-danger');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Iniciando...';
+  try {
+    const data = await api('/api/live/iniciar', { method: 'POST' });
+    showToast('Live iniciada! ' + data.watchUrl);
+    atualizarStatus();
+  } catch (err) {
+    showToast('Erro: ' + err.message, 'error');
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-play-fill"></i> Iniciar Live';
+  }
+}
+
+async function pararLive() {
+  if (!confirm('Encerrar transmissao ao vivo?')) return;
+  try {
+    await api('/api/live/parar', { method: 'POST' });
+    showToast('Live encerrada');
+    atualizarStatus();
+  } catch (err) {
+    showToast('Erro: ' + err.message, 'error');
+  }
+}
+
+async function regenerarSlides() {
+  try {
+    const data = await api('/api/live/regenerar', { method: 'POST' });
+    showToast('Slides atualizados (' + data.total + ' produtos)' + (data.liveAtiva ? ' - Live reiniciada' : ''));
+    carregarProdCount();
+  } catch (err) {
+    showToast('Erro: ' + err.message, 'error');
+  }
+}
+
+async function carregarProdCount() {
+  try {
+    const data = await api('/api/produtos?limit=1&ativo=true');
+    document.getElementById('liveProdCount').textContent = data.total + ' produtos ativos na vitrine';
+  } catch (_) {
+    document.getElementById('liveProdCount').textContent = '---';
+  }
+}
+
+atualizarStatus();
+setInterval(atualizarStatus, 30000);
+carregarProdCount();
+</script>
+<%- include('../partials/footer') %>

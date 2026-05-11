@@ -1,0 +1,82 @@
+:root {
+  --adega-red: #dc3545;
+  --adega-dark: #1a1a2e;
+  --adega-darker: #16213e;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f9;
+  min-height: 100vh;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.card {
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.btn-danger {
+  background: var(--adega-red);
+  border-color: var(--adega-red);
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+.bg-dark {
+  background: var(--adega-dark) !important;
+}
+
+.modal-header.bg-dark {
+  border-bottom: 3px solid var(--adega-red);
+}
+
+.list-group-item {
+  border-left: none;
+  border-right: none;
+  padding: 0.75rem 1rem;
+}
+
+.list-group-item:first-child {
+  border-top: none;
+}
+
+canvas {
+  max-height: 280px;
+}
+
+.badge {
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 12px !important;
+  }
+  .table {
+    font-size: 0.8rem;
+  }
+}

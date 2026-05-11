@@ -1,0 +1,155 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-coin"></i> Financeiro</h4>
+    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#financeModal" onclick="resetFinanceForm()">
+      <i class="bi bi-plus-lg"></i> Novo Registro
+    </button>
+  </div>
+
+  <div class="row g-3 mb-3" id="fluxoResumo">
+    <div class="col-md-3"><div class="card border-0 shadow-sm border-success"><div class="card-body"><small class="text-muted">Receitas</small><h5 class="text-success" id="totalReceitas">-</h5></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm border-danger"><div class="card-body"><small class="text-muted">Despesas</small><h5 class="text-danger" id="totalDespesas">-</h5></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm border-primary"><div class="card-body"><small class="text-muted">Saldo</small><h5 class="text-primary" id="totalSaldo">-</h5></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm border-warning"><div class="card-body"><small class="text-muted">Lucro Liquido</small><h5 id="lucroLiquido">-</h5></div></div></div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-graph-up"></i> Fluxo Mensal</h6></div>
+        <div class="card-body"><canvas id="financeChart" height="250"></canvas></div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-pie-chart"></i> Lucro Bruto vs Liquido</h6></div>
+        <div class="card-body text-center">
+          <h3 id="lucroBrutoDisplay">-</h3>
+          <small class="text-muted">Lucro Bruto</small>
+          <div class="mt-3"><h3 id="lucroLiquidoDisplay">-</h3><small class="text-muted">Lucro Liquido</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-3"><input type="date" class="form-control" id="fStart" onchange="loadFinanceiro()"></div>
+        <div class="col-md-3"><input type="date" class="form-control" id="fEnd" onchange="loadFinanceiro()"></div>
+        <div class="col-md-2"><select class="form-select" id="fTipo" onchange="loadFinanceiro()"><option value="">Todos</option><option value="receita">Receitas</option><option value="despesa">Despesas</option></select></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark"><tr><th>Tipo</th><th>Categoria</th><th>Descricao</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Data</th><th>Acao</th></tr></thead>
+          <tbody id="financeTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="financeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white"><h5 class="modal-title">Novo Registro</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <form id="financeForm">
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Tipo</label>
+            <select name="tipo" class="form-select"><option value="receita">Receita</option><option value="despesa">Despesa</option></select>
+          </div>
+          <div class="mb-3"><label class="form-label">Categoria</label>
+            <select name="categoria" class="form-select">
+              <option value="venda">Venda</option><option value="fornecedor">Fornecedor</option><option value="aluguel">Aluguel</option>
+              <option value="salarios">Salarios</option><option value="energia">Energia</option><option value="agua">Agua</option>
+              <option value="impostos">Impostos</option><option value="marketing">Marketing</option><option value="outro">Outro</option>
+            </select>
+          </div>
+          <div class="mb-3"><label class="form-label">Descricao</label><input type="text" name="descricao" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">Valor</label><input type="number" step="0.01" name="valor" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">Forma Pagamento</label>
+            <select name="formaPagamento" class="form-select"><option value="pix">Pix</option><option value="credito">Credito</option><option value="debito">Debito</option><option value="boleto">Boleto</option><option value="transferencia">Transferencia</option></select>
+          </div>
+          <div class="mb-3"><label class="form-label">Status</label>
+            <select name="status" class="form-select"><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+let financeChart;
+
+async function loadFinanceiro() {
+  const params = new URLSearchParams({ limit: 100 });
+  const start = document.getElementById('fStart').value;
+  const end = document.getElementById('fEnd').value;
+  const tipo = document.getElementById('fTipo').value;
+  if (start) params.set('startDate', start);
+  if (end) params.set('endDate', end);
+  if (tipo) params.set('tipo', tipo);
+
+  const data = await api('/api/financeiro?' + params);
+  const tbody = document.getElementById('financeTable');
+  tbody.innerHTML = (data.registros || []).map(r => `
+    <tr>
+      <td><span class="badge ${r.tipo === 'receita' ? 'bg-success' : 'bg-danger'}">${r.tipo}</span></td>
+      <td>${r.categoria}</td>
+      <td>${r.descricao}</td>
+      <td><strong>R$ ${r.valor.toFixed(2)}</strong></td>
+      <td>${r.formaPagamento || '-'}</td>
+      <td><span class="badge ${r.status === 'pago' ? 'bg-success' : 'bg-warning'}">${r.status}</span></td>
+      <td><small>${new Date(r.data).toLocaleDateString()}</small></td>
+      <td><button class="btn btn-sm btn-outline-danger" onclick="deleteFinance('${r._id}')"><i class="bi bi-trash"></i></button></td>
+    </tr>
+  `).join('');
+
+  const fluxo = await api('/api/financeiro/fluxo-caixa');
+  document.getElementById('totalReceitas').textContent = `R$ ${(fluxo.receitas || 0).toFixed(2)}`;
+  document.getElementById('totalDespesas').textContent = `R$ ${(fluxo.despesas || 0).toFixed(2)}`;
+  document.getElementById('totalSaldo').textContent = `R$ ${(fluxo.saldo || 0).toFixed(2)}`;
+
+  const rel = await api('/api/financeiro/relatorio-mensal');
+  document.getElementById('lucroLiquido').textContent = `R$ ${(rel.lucroLiquido || 0).toFixed(2)}`;
+  document.getElementById('lucroBrutoDisplay').textContent = `R$ ${(rel.lucroBruto || 0).toFixed(2)}`;
+  document.getElementById('lucroLiquidoDisplay').textContent = `R$ ${(rel.lucroLiquido || 0).toFixed(2)}`;
+
+  if (rel.mensal) {
+    if (financeChart) financeChart.destroy();
+    financeChart = new Chart(document.getElementById('financeChart'), {
+      type: 'bar',
+      data: {
+        labels: rel.mensal.map(m => ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][m.mes - 1]),
+        datasets: [
+          { label: 'Receitas', data: rel.mensal.map(m => m.receitas), backgroundColor: 'rgba(25,135,84,0.7)' },
+          { label: 'Despesas', data: rel.mensal.map(m => m.despesas), backgroundColor: 'rgba(220,53,69,0.7)' },
+        ],
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } },
+    });
+  }
+}
+
+function resetFinanceForm() { document.getElementById('financeForm').reset(); }
+async function deleteFinance(id) { if (!confirm('Remover?')) return; await api('/api/financeiro/' + id, { method: 'DELETE' }); loadFinanceiro(); }
+
+document.getElementById('financeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  await api('/api/financeiro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  bootstrap.Modal.getInstance(document.getElementById('financeModal')).hide();
+  loadFinanceiro();
+});
+
+loadFinanceiro();
+</script>
+<%- include('../partials/footer') %>

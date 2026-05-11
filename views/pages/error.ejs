@@ -1,0 +1,8 @@
+<%- include('../partials/header') %>
+<div class="container py-5 text-center">
+  <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+  <h1 class="mt-3">Oops!</h1>
+  <p class="lead"><%= error || 'Erro interno do servidor' %></p>
+  <a href="/admin" class="btn btn-danger">Voltar ao Dashboard</a>
+</div>
+<%- include('../partials/footer') %>

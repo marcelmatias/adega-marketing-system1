@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adega TV - Player</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #fff; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+    #tvContainer { width: 100vw; height: 100vh; display: flex; flex-direction: column; background: #000; }
+    #tvContent { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #000; }
+    #tvContent video { width: 100%; height: 100%; object-fit: contain; }
+    #tvContent img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    #tvFallback { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    #tvFallback i { font-size: 5rem; color: #e74c3c; margin-bottom: 20px; }
+    #tvFallback h2 { font-size: 2rem; }
+    #tvOverlay { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; align-items: center; gap: 15px; }
+    #tvOverlay .logo { height: 50px; }
+    #tvOverlay .info { text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+    #tvOverlay .info h1 { font-size: 1.5rem; margin: 0; font-weight: 700; }
+    #tvOverlay .info small { opacity: 0.7; }
+    #tvStatus { position: absolute; bottom: 20px; left: 20px; z-index: 10; font-size: 0.8rem; opacity: 0.5; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+    #tvNowPlaying { position: absolute; bottom: 20px; right: 20px; z-index: 10; background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 8px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); max-width: 60%; text-align: right; }
+    #tvNowPlaying .prod-label { opacity: 0.7; font-size: 0.75rem; }
+    #tvNowPlaying .prod-name { font-size: 1rem; font-weight: 600; }
+    #tvNowPlaying .prod-price { color: #2ecc71; font-weight: 700; font-size: 1.1rem; }
+    #tvNowPlaying .prod-type { opacity: 0.6; font-size: 0.8rem; }
+    #tvNowPlaying .prod-unit { opacity: 0.5; font-size: 0.75rem; display: block; }
+    #tvNowPlaying .prod-desc { opacity: 0.7; font-size: 0.85rem; display: block; font-style: italic; }
+    #tvNowPlaying .camp-desc { opacity: 0.6; font-size: 0.8rem; display: block; }
+    #tvProgress { position: absolute; bottom: 0; left: 0; height: 3px; background: #e74c3c; z-index: 20; transition: width 0.3s; }
+    @media (max-width: 768px) {
+      #tvOverlay .info h1 { font-size: 1rem; }
+      #tvOverlay .logo { height: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="tvContainer">
+    <div id="tvContent">
+      <div id="tvFallback">
+        <i class="bi bi-tv"></i>
+        <h2 id="tvFallbackTitle">Adega TV</h2>
+        <p class="text-muted">Aguardando conteudo...</p>
+        <p id="tvCountdown" class="text-muted small"></p>
+      </div>
+      <div id="tvOverlay" class="d-none">
+        <img src="" class="logo" id="tvLogo" alt="">
+        <div class="info">
+          <h1 id="tvTitle">Adega TV</h1>
+          <small id="tvSubtitle">Playlist automatica</small>
+        </div>
+      </div>
+      <div id="tvNowPlaying" class="d-none"></div>
+      <div id="tvProgress"></div>
+    </div>
+  </div>
+  <audio id="tvAudio" loop style="display:none;"></audio>
+
+  <script>
+    const ADEGA_INFO = <%- JSON.stringify(adegaInfo || null) %>;
+
+    let playlist = [];
+    let currentEntryIdx = 0;
+    let refreshInterval = 60000;
+    let autoAdvanceTimer = null;
+    let currentAudioSrc = null;
+    let progressInterval = null;
+    let videoEndHandler = null;
+
+    const tvAudio = document.getElementById('tvAudio');
+    const tvContent = document.getElementById('tvContent');
+    const tvOverlay = document.getElementById('tvOverlay');
+    const tvFallback = document.getElementById('tvFallback');
+    const tvNowPlaying = document.getElementById('tvNowPlaying');
+    const tvProgress = document.getElementById('tvProgress');
+    const tvCountdown = document.getElementById('tvCountdown');
+
+    function applyAdegaInfo() {
+      if (!ADEGA_INFO) return;
+      if (ADEGA_INFO.logo) {
+        document.getElementById('tvLogo').src = ADEGA_INFO.logo;
+      }
+      const nomeAdega = ADEGA_INFO.nome || 'Adega TV';
+      document.getElementById('tvTitle').textContent = nomeAdega;
+      document.getElementById('tvFallbackTitle').textContent = nomeAdega;
+      const addr = [];
+      if (ADEGA_INFO.endereco) {
+        const e = ADEGA_INFO.endereco;
+        if (e.logradouro) {
+          let line = e.logradouro;
+          if (e.numero) line += ', ' + e.numero;
+          addr.push(line);
+        }
+        if (e.bairro) addr.push(e.bairro);
+        if (e.cidade) {
+          let line = e.cidade;
+          if (e.estado) line += ' - ' + e.estado;
+          addr.push(line);
+        }
+      }
+      document.getElementById('tvSubtitle').textContent = addr.join(' | ') || 'Playlist automatica';
+    }
+
+    applyAdegaInfo();
+
+    function buildPlaylist(campanhas) {
+      const list = [];
+      for (const c of campanhas) {
+        if (!c.midias || c.midias.length === 0) continue;
+        const midias = c.midias.sort((a, b) => a.ordem - b.ordem);
+        const produto = c.produtoId || null;
+        for (const m of midias) {
+          list.push({
+            campanhaId: c._id,
+            campanhaNome: c.nome,
+            campanhaDescricao: c.descricao || null,
+            produtoNome: produto ? produto.nome : null,
+            produtoPreco: produto ? produto.preco : null,
+            produtocategoria: produto ? produto.categoria : null,
+            produtoDescricao: produto ? produto.descricao : null,
+            produtoUnidade: produto ? produto.unidade : null,
+            midia: m,
+            audio: c.audio || null,
+          });
+        }
+      }
+      return list;
+    }
+
+    async function carregarPlaylist() {
+      try {
+        const res = await fetch('/api/tv/playlist-ativa');
+        const data = await res.json();
+        const novas = buildPlaylist(data.campanhas || []);
+
+        if (novas.length === 0) {
+          tvFallback.style.display = 'flex';
+          tvContent.innerHTML = tvFallback.outerHTML;
+          tvNowPlaying.classList.add('d-none');
+          return;
+        }
+
+        const mesmaPlaylist = playlist.length === novas.length &&
+          playlist.every((e, i) => e.midia._id === novas[i].midia._id);
+
+        playlist = novas;
+        if (!mesmaPlaylist || playlist.length === 0) {
+          currentEntryIdx = 0;
+          playEntry(0);
+        }
+
+        tvNowPlaying.classList.remove('d-none');
+      } catch (err) {
+        console.error('Erro TV:', err);
+      }
+    }
+
+    function playEntry(idx) {
+      if (playlist.length === 0) return;
+      if (idx >= playlist.length) { idx = 0; }
+      currentEntryIdx = idx;
+      const entry = playlist[idx];
+
+      if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
+      if (progressInterval) clearInterval(progressInterval);
+
+      const midia = entry.midia;
+      const campanhaNome = entry.campanhaNome;
+      const campanhaDescricao = entry.campanhaDescricao;
+      const produtoNome = entry.produtoNome;
+      const produtoPreco = entry.produtoPreco;
+      const produtocategoria = entry.produtocategoria;
+      const produtoDescricao = entry.produtoDescricao;
+      const produtoUnidade = entry.produtoUnidade;
+
+      const img = tvContent.querySelector('img');
+      const video = tvContent.querySelector('video');
+      if (img) img.remove();
+      if (video) { video.removeEventListener('ended', videoEndHandler); video.remove(); }
+
+      let nowHtml = `<div class="prod-label">Agora: ${campanhaNome}</div>`;
+      if (campanhaDescricao) {
+        nowHtml += `<div class="camp-desc">${campanhaDescricao}</div>`;
+      }
+      if (produtoNome) {
+        nowHtml += `<div class="prod-name">${produtoNome}</div>`;
+        if (produtocategoria) {
+          nowHtml += `<div class="prod-type">${produtocategoria}</div>`;
+        }
+        if (produtoUnidade) {
+          nowHtml += `<span class="prod-unit">Unidade: ${produtoUnidade}</span>`;
+        }
+        if (produtoDescricao) {
+          nowHtml += `<span class="prod-desc">${produtoDescricao}</span>`;
+        }
+        if (produtoPreco != null) {
+          nowHtml += `<div class="prod-price">R$ ${Number(produtoPreco).toFixed(2)}</div>`;
+        }
+      }
+      tvNowPlaying.innerHTML = nowHtml;
+
+      if (midia.tipo === 'imagem') {
+        manageAudio(entry);
+        const el = document.createElement('img');
+        el.src = midia.arquivo;
+        el.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+        tvContent.insertBefore(el, tvContent.firstChild);
+
+        const duracao = (midia.duracao || 5) * 1000;
+        tvProgress.style.transition = 'none';
+        tvProgress.style.width = '0%';
+        requestAnimationFrame(() => {
+          tvProgress.style.transition = `width ${duracao}ms linear`;
+          tvProgress.style.width = '100%';
+        });
+
+        autoAdvanceTimer = setTimeout(() => playEntry(idx + 1), duracao);
+      } else {
+        tvAudio.pause();
+        tvAudio.currentTime = 0;
+        const el = document.createElement('video');
+        el.src = midia.arquivo;
+        el.autoplay = true;
+        el.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+        tvContent.insertBefore(el, tvContent.firstChild);
+
+        tvProgress.style.transition = 'none';
+        tvProgress.style.width = '100%';
+
+        const duracao = (midia.duracao || 30) * 1000;
+        videoEndHandler = () => playEntry(idx + 1);
+        el.addEventListener('ended', videoEndHandler);
+        el.play().catch(() => {
+          el.muted = true;
+          el.play();
+        });
+
+        el.addEventListener('timeupdate', () => {
+          if (el.duration) {
+            tvProgress.style.transition = 'none';
+            tvProgress.style.width = `${(el.currentTime / el.duration) * 100}%`;
+          }
+        });
+
+        autoAdvanceTimer = setTimeout(() => playEntry(idx + 1), duracao + 2000);
+      }
+    }
+
+    function manageAudio(entry) {
+      if (entry.audio && entry.audio.arquivo) {
+        const src = entry.audio.arquivo;
+        if (tvAudio.src !== window.location.origin + src) {
+          tvAudio.src = src;
+          tvAudio.loop = true;
+          tvAudio.play().catch(() => {});
+          currentAudioSrc = src;
+        } else if (tvAudio.paused) {
+          tvAudio.play().catch(() => {});
+        }
+      }
+    }
+
+    function updateCountdown() {
+      if (!playlist.length) {
+        tvCountdown.textContent = `Atualizando em ${refreshInterval / 1000}s...`;
+      } else {
+        tvCountdown.textContent = `Item ${currentEntryIdx + 1}/${playlist.length} | Atualizando em ${refreshInterval / 1000}s`;
+      }
+    }
+
+    carregarPlaylist();
+    setInterval(carregarPlaylist, refreshInterval);
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>

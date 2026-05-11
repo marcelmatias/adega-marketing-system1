@@ -1,0 +1,179 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-megaphone"></i> Campanhas</h4>
+    <div>
+      <button class="btn btn-outline-danger me-2" onclick="syncCanva()"><i class="bi bi-palette"></i> Canva</button>
+      <button class="btn btn-outline-danger me-2" onclick="syncYoutube()"><i class="bi bi-youtube"></i> YouTube</button>
+      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#campanhaModal" onclick="resetCampanhaForm()"><i class="bi bi-plus-lg"></i> Nova Campanha</button>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr><th>Nome</th><th>Produto</th><th>Tipo</th><th>Status</th><th>Canva</th><th>YouTube</th><th>TV</th><th>Publicacao</th><th>Acoes</th></tr>
+          </thead>
+          <tbody id="campanhasTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="campanhaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white"><h5 class="modal-title">Nova Campanha</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <form id="campanhaForm">
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">Nome *</label><input type="text" name="nome" class="form-control" required></div>
+          <div class="mb-3"><label class="form-label">Produto</label>
+            <select name="produtoId" class="form-select" id="campanhaProdutoSelect"><option value="">Nenhum</option></select>
+          </div>
+          <div class="mb-3"><label class="form-label">Tipo</label>
+            <select name="tipo" class="form-select"><option value="video">Video</option><option value="imagem">Imagem</option><option value="carrossel">Carrossel</option><option value="story">Story</option></select>
+          </div>
+          <div class="mb-3"><label class="form-label">Descricao</label><textarea name="descricao" class="form-control" rows="3"></textarea></div>
+          <div class="mb-3"><label class="form-label">Tags (virgula)</label><input type="text" name="tags" class="form-control" placeholder="tag1, tag2"></div>
+          <input type="hidden" name="campanhaId">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const CANVA_MOCK = <%= canvaConfig.mock !== false %>;
+const YOUTUBE_MOCK = <%= youtubeConfig.mock !== false %>;
+
+async function loadCampanhas() {
+  try {
+    const data = await api('/api/campanhas?limit=100');
+    const tbody = document.getElementById('campanhasTable');
+    tbody.innerHTML = (data.campanhas || []).map(c => `
+      <tr>
+        <td><a href="/admin/campanhas/${c._id}" class="text-decoration-none fw-bold">${c.nome}</a></td>
+        <td>${c.produtoId?.nome || '-'}${c.produtoId?.categoria ? `<br><small class="text-muted">${c.produtoId.categoria}</small>` : ''}</td>
+        <td><span class="badge bg-secondary">${c.tipo}</span></td>
+        <td><span class="badge ${c.status === 'publicado' ? 'bg-success' : c.status === 'pronto' ? 'bg-primary' : 'bg-secondary'}">${c.status}</span></td>
+        <td>${c.templateCanva ? '<i class="bi bi-check-circle text-success"></i>' : '<i class="bi bi-x-circle text-muted"></i>'}</td>
+        <td>${c.urlYoutube ? '<a href="' + c.urlYoutube + '" target="_blank"><i class="bi bi-play-circle text-danger"></i></a>' : '<i class="bi bi-x-circle text-muted"></i>'}</td>
+        <td>
+          <div class="form-check form-switch d-flex justify-content-center">
+            <input class="form-check-input tv-toggle" type="checkbox" data-id="${c._id}" ${c.ativoNaTV ? 'checked' : ''} style="cursor:pointer;">
+          </div>
+        </td>
+        <td><small>${c.dataPublicacao ? new Date(c.dataPublicacao).toLocaleDateString() : '-'}</small></td>
+        <td>
+          <a href="/admin/campanhas/${c._id}" class="btn btn-sm btn-outline-primary" title="Editar Midias"><i class="bi bi-images"></i></a>
+          <button class="btn btn-sm btn-outline-primary" onclick="editCampanha('${c._id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="designCanva('${c._id}')" title="Criar no Canva"><i class="bi bi-palette"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="pubYoutube('${c._id}')" title="Publicar YouTube"><i class="bi bi-youtube"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteCampanha('${c._id}')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.tv-toggle').forEach(el => {
+      el.addEventListener('change', async function() {
+        try {
+          await api('/api/midias/' + this.dataset.id + '/tv-toggle', { method: 'PUT' });
+        } catch (err) { showToast('Erro: ' + err.message, 'error'); this.checked = !this.checked; }
+      });
+    });
+  } catch (err) { showToast('Erro ao carregar campanhas: ' + err.message, 'error'); }
+}
+
+async function loadProdutosSelect() {
+  const data = await api('/api/produtos?limit=200&ativo=true');
+  const sel = document.getElementById('campanhaProdutoSelect');
+  sel.innerHTML = '<option value="">Nenhum</option>' + (data.produtos || []).map(p => `<option value="${p._id}">${p.nome}</option>`).join('');
+}
+
+function resetCampanhaForm() {
+  document.getElementById('campanhaForm').reset();
+  document.querySelector('[name="campanhaId"]').value = '';
+  loadProdutosSelect();
+}
+
+async function editCampanha(id) {
+  const data = await api('/api/campanhas/' + id);
+  const c = data.campanha;
+  await loadProdutosSelect();
+  document.querySelector('[name="campanhaId"]').value = c._id;
+  document.querySelector('[name="nome"]').value = c.nome;
+  document.querySelector('[name="produtoId"]').value = c.produtoId?._id || '';
+  document.querySelector('[name="tipo"]').value = c.tipo || 'video';
+  document.querySelector('[name="descricao"]').value = c.descricao || '';
+  document.querySelector('[name="tags"]').value = (c.tags || []).join(', ');
+  new bootstrap.Modal(document.getElementById('campanhaModal')).show();
+}
+
+async function designCanva(id) {
+  try {
+    await api('/api/campanhas/' + id + '/design-canva', { method: 'POST' });
+    loadCampanhas();
+  } catch (err) { showToast('Erro Canva: ' + err.message, 'error'); }
+}
+
+async function pubYoutube(id) {
+  try {
+    await api('/api/campanhas/' + id + '/publicar-youtube', { method: 'POST' });
+    loadCampanhas();
+  } catch (err) { showToast('Erro YouTube: ' + err.message, 'error'); }
+}
+
+async function deleteCampanha(id) {
+  if (!confirm('Remover campanha?')) return;
+  try {
+    await api('/api/campanhas/' + id, { method: 'DELETE' });
+    loadCampanhas();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+async function syncCanva() {
+  try {
+    const data = await api('/api/canva/designs');
+    if (data.mock) {
+      alert('Canva: modo mock ativo. Configure as chaves nas Configuracoes para usar a API real.');
+    } else {
+      alert(`Canva conectado. ${data.total || 0} designs encontrados.`);
+    }
+  } catch (err) { alert('Erro Canva: ' + err.message); }
+}
+
+async function syncYoutube() {
+  try {
+    if (YOUTUBE_MOCK) {
+      alert('YouTube: modo mock ativo. Configure as chaves nas Configuracoes para usar a API real.');
+    } else {
+      alert('YouTube configurado com API real.');
+    }
+  } catch (err) { alert('Erro YouTube: ' + err.message); }
+}
+
+document.getElementById('campanhaForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const id = data.campanhaId; delete data.campanhaId;
+  if (data.tags) data.tags = data.tags.split(',').map(s => s.trim()).filter(Boolean);
+  try {
+    if (id) await api('/api/campanhas/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    else await api('/api/campanhas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    bootstrap.Modal.getInstance(document.getElementById('campanhaModal')).hide();
+    loadCampanhas();
+  } catch (err) { alert(err.message); }
+});
+
+loadCampanhas();
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,251 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <a href="/admin/campanhas" class="text-muted text-decoration-none me-2">&larr; Campanhas</a>
+      <h4 class="mb-0 d-inline"><i class="bi bi-megaphone"></i> <%= campanha.nome %></h4>
+      <span class="badge <%= campanha.status === 'publicado' ? 'bg-success' : campanha.status === 'pronto' ? 'bg-primary' : 'bg-secondary' %> ms-2"><%= campanha.status %></span>
+    </div>
+    <div>
+      <button class="btn btn-sm btn-outline-success me-2" onclick="toggleTV()">
+        <i class="bi <%= campanha.ativoNaTV ? 'bi-check-circle-fill' : 'bi-circle' %>"></i>
+        <span id="tvStatusText"><%= campanha.ativoNaTV ? 'Ativo na TV' : 'Ativar na TV' %></span>
+      </button>
+      <a href="/admin/campanhas" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Voltar</a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-info-circle"></i> Informacoes</h6></div>
+        <div class="card-body">
+          <p class="mb-1"><strong>Produto:</strong> <%= campanha.produtoId?.nome || '-' %></p>
+          <p class="mb-1"><strong>Tipo Produto:</strong> <%= campanha.produtoId?.categoria || '-' %></p>
+          <p class="mb-1"><strong>Formato:</strong> <%= campanha.tipo %></p>
+          <p class="mb-1"><strong>Descricao:</strong> <%= campanha.descricao || '-' %></p>
+          <p class="mb-1"><strong>Tags:</strong> <%= (campanha.tags || []).join(', ') || '-' %></p>
+          <p class="mb-1"><strong>Duracao padrao imagem:</strong> <%= campanha.duracaoPadraoImagem || 5 %>s</p>
+          <p class="mb-0"><strong>Total midias:</strong> <%= midias.length %></p>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-music-note"></i> Audio de Fundo</h6></div>
+        <div class="card-body">
+          <% if (campanha.audio && campanha.audio.arquivo) { %>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div><small><%= campanha.audio.nomeOriginal %></small></div>
+              <button class="btn btn-sm btn-outline-danger" onclick="removerAudio()"><i class="bi bi-trash"></i></button>
+            </div>
+            <audio controls class="w-100" style="height:40px;">
+              <source src="<%= campanha.audio.arquivo %>">
+            </audio>
+          <% } else { %>
+            <p class="text-muted small mb-2">Nenhum audio. Envie um arquivo MP3/WAV/OGG.</p>
+          <% } %>
+          <form id="audioForm" class="mt-2">
+            <div class="input-group input-group-sm">
+              <input type="file" class="form-control" name="audio" accept="audio/*" required>
+              <button class="btn btn-danger" type="submit"><i class="bi bi-upload"></i></button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-upload"></i> Adicionar Midia</h6></div>
+        <div class="card-body">
+          <form id="midiaForm">
+            <div class="mb-2">
+              <input type="file" class="form-control form-control-sm" name="arquivo" accept="image/*,video/*" required>
+            </div>
+            <button class="btn btn-danger btn-sm w-100" type="submit"><i class="bi bi-upload"></i> Enviar</button>
+          </form>
+          <hr>
+          <form id="youtubeForm">
+            <label class="form-label small mb-1"><i class="bi bi-youtube text-danger"></i> Video do YouTube</label>
+            <div class="input-group input-group-sm mb-2">
+              <input type="url" class="form-control" name="url" placeholder="https://youtube.com/watch?v=..." required>
+              <button class="btn btn-danger" type="submit"><i class="bi bi-download"></i></button>
+            </div>
+          </form>
+          <hr>
+          <a href="/admin/campanhas" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-arrow-left"></i> Voltar para lista</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h6 class="mb-0"><i class="bi bi-images"></i> Midias (<%= midias.length %>)</h6>
+          <small class="text-muted">Arraste para reordenar</small>
+        </div>
+        <div class="card-body p-0">
+          <div id="midiaList" class="list-group list-group-flush sortable">
+            <% if (midias.length === 0) { %>
+              <div class="list-group-item text-center text-muted py-5">
+                <i class="bi bi-image" style="font-size:3rem;display:block;margin-bottom:10px;"></i>
+                Nenhuma midia ainda. Envie imagens ou videos para compor a campanha.
+              </div>
+            <% } %>
+            <% midias.forEach(function(m, idx) { %>
+              <div class="list-group-item midia-item" data-id="<%= m._id %>" data-tipo="<%= m.tipo %>">
+                <div class="row align-items-center g-2">
+                  <div class="col-auto">
+                    <i class="bi bi-grip-vertical text-muted" style="cursor:grab;"></i>
+                  </div>
+                  <div class="col-auto">
+                    <% if (m.tipo === 'imagem') { %>
+                      <img src="<%= m.arquivo %>" style="width:60px;height:60px;object-fit:cover;border-radius:4px;" alt="">
+                    <% } else { %>
+                      <video style="width:60px;height:60px;object-fit:cover;border-radius:4px;" muted>
+                        <source src="<%= m.arquivo %>">
+                      </video>
+                    <% } %>
+                  </div>
+                  <div class="col">
+                    <div><strong>#<%= idx + 1 %></strong> <%= m.nomeOriginal || m.arquivo.split('/').pop() %></div>
+                    <small class="text-muted"><%= m.tipo %>
+                      | Duracao: <span class="duracao-text"><%= m.duracao || 0 %></span>s
+                      <button class="btn btn-sm btn-outline-secondary py-0 px-1 ms-1" onclick="editarDuracao('<%= m._id %>')"><i class="bi bi-pencil"></i></button>
+                    </small>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" onclick="removerMidia('<%= m._id %>')"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-3">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-eye"></i> Pre-visualizacao</h6></div>
+        <div class="card-body text-center" id="previewArea">
+          <% if (midias.length > 0) { %>
+            <div id="previewCarousel" class="position-relative" style="max-width:600px;margin:0 auto;">
+              <% if (midias[0].tipo === 'imagem') { %>
+                <img id="previewImg" src="<%= midias[0].arquivo %>" style="max-width:100%;max-height:300px;border-radius:8px;object-fit:contain;">
+              <% } else { %>
+                <video id="previewVideo" style="max-width:100%;max-height:300px;border-radius:8px;" controls>
+                  <source src="<%= midias[0].arquivo %>">
+                </video>
+              <% } %>
+              <div class="mt-2">
+                <small class="text-muted" id="previewInfo">Midia 1 de <%= midias.length %></small>
+              </div>
+            </div>
+          <% } else { %>
+            <p class="text-muted py-4">Adicione midias para ver a pre-visualizacao</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+const CAMPANHA_ID = '<%= campanha._id %>';
+
+document.getElementById('midiaForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  try {
+    await api(`/api/midias/${CAMPANHA_ID}/midias`, { method: 'POST', body: fd });
+    location.reload();
+  } catch (err) { showToast('Erro upload: ' + err.message, 'error'); }
+});
+
+document.getElementById('youtubeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const url = e.target.url.value.trim();
+  const btn = e.target.querySelector('button');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+  try {
+    const data = await api(`/api/midias/${CAMPANHA_ID}/youtube-video`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    showToast(`Video importado: ${data.videoTitle} (${data.duration}s)`);
+    setTimeout(() => location.reload(), 1000);
+  } catch (err) {
+    showToast('Erro YouTube: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-download"></i>';
+  }
+});
+
+document.getElementById('audioForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  try {
+    await api(`/api/midias/${CAMPANHA_ID}/audio`, { method: 'POST', body: fd });
+    location.reload();
+  } catch (err) { showToast('Erro audio: ' + err.message, 'error'); }
+});
+
+async function removerMidia(midiaId) {
+  if (!confirm('Remover esta midia?')) return;
+  try {
+    await api(`/api/midias/${CAMPANHA_ID}/midias/${midiaId}`, { method: 'DELETE' });
+    location.reload();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+async function removerAudio() {
+  if (!confirm('Remover audio?')) return;
+  try {
+    await api(`/api/midias/${CAMPANHA_ID}/audio`, { method: 'DELETE' });
+    location.reload();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+async function toggleTV() {
+  try {
+    await api(`/api/midias/${CAMPANHA_ID}/tv-toggle`, { method: 'PUT' });
+    location.reload();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+async function editarDuracao(midiaId) {
+  const atual = prompt('Duracao em segundos:', document.querySelector(`[data-id="${midiaId}"] .duracao-text`).textContent);
+  if (!atual || isNaN(atual) || +atual < 1) return;
+  try {
+    await api(`/api/midias/${CAMPANHA_ID}/midias/${midiaId}/duracao`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ duracao: +atual }),
+    });
+    location.reload();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+const midiaList = document.getElementById('midiaList');
+if (midiaList && midiaList.querySelector('.midia-item')) {
+  new Sortable(midiaList, {
+    handle: '.bi-grip-vertical',
+    animation: 150,
+    onEnd: async function() {
+      const items = midiaList.querySelectorAll('.midia-item');
+      const ordens = Array.from(items).map((el, i) => ({ _id: el.dataset.id, ordem: i }));
+      try {
+        await api(`/api/midias/${CAMPANHA_ID}/midias/reordenar`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ordens }),
+        });
+        showToast('Ordem salva!');
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+    },
+  });
+}
+</script>
+<%- include('../partials/footer') %>

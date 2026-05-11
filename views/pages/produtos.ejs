@@ -1,0 +1,163 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-box"></i> Produtos</h4>
+    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#produtoModal" onclick="resetForm()">
+      <i class="bi bi-plus-lg"></i> Novo Produto
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <input type="text" class="form-control" id="searchProduto" placeholder="Buscar produto..." onkeyup="loadProdutos()">
+        </div>
+        <div class="col-md-2">
+          <select class="form-select" id="filterCategoria" onchange="loadProdutos()">
+            <option value="">Todos tipos</option>
+            <option value="cervesa">Cervesa</option>
+            <option value="vinho">Vinho</option>
+            <option value="destilado">Destilado</option>
+            <option value="refrigerante">Refrigerante</option>
+            <option value="agua">Agua</option>
+            <option value="suco">Suco</option>
+            <option value="energetico">Energetico</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr><th>Produto</th><th>Tipo</th><th>Unidade</th><th>Status</th><th>Acoes</th></tr>
+          </thead>
+          <tbody id="produtosTable"></tbody>
+        </table>
+      </div>
+      <nav id="pagination"></nav>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="produtoModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="modalTitle">Novo Produto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="produtoForm">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Nome *</label><input type="text" name="nome" class="form-control" required></div>
+            <div class="col-md-3"><label class="form-label">Tipo</label>
+              <select name="categoria" class="form-select">
+                <option value="cervesa">Cervesa</option>
+                <option value="vinho">Vinho</option>
+                <option value="destilado">Destilado</option>
+                <option value="refrigerante">Refrigerante</option>
+                <option value="agua">Agua</option>
+                <option value="suco">Suco</option>
+                <option value="energetico">Energetico</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+            <div class="col-md-3"><label class="form-label">Unidade</label><input type="text" name="unidade" class="form-control" value="un"></div>
+            <div class="col-md-3"><label class="form-label">Preco *</label><input type="number" step="0.01" name="preco" class="form-control" required></div>
+            <div class="col-md-3"><label class="form-label">Custo</label><input type="number" step="0.01" name="custo" class="form-control" value="0"></div>
+            <div class="col-md-3"><label class="form-label">Estoque</label><input type="number" name="estoque" class="form-control" value="0"></div>
+            <div class="col-md-3"><label class="form-label">Estoque Minimo</label><input type="number" name="estoqueMinimo" class="form-control" value="10"></div>
+            <div class="col-md-4"><label class="form-label">Volume</label><input type="text" name="volume" class="form-control"></div>
+            <div class="col-md-4"><label class="form-label">Teor Alcoolico</label><input type="number" step="0.1" name="teorAlcoolico" class="form-control"></div>
+            <div class="col-12"><label class="form-label">Descricao</label><textarea name="descricao" class="form-control" rows="2"></textarea></div>
+          </div>
+          <input type="hidden" name="produtoId">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+let page = 1;
+
+async function loadProdutos() {
+  const busca = document.getElementById('searchProduto').value;
+  const categoria = document.getElementById('filterCategoria').value;
+  const params = new URLSearchParams({ page, limit: 20 });
+  if (busca) params.set('busca', busca);
+  if (categoria) params.set('categoria', categoria);
+  const data = await api('/api/produtos?' + params);
+  const tbody = document.getElementById('produtosTable');
+  tbody.innerHTML = (data.produtos || []).map(p => `
+    <tr>
+      <td><strong>${p.nome}</strong><br><small class="text-muted">${p.volume || ''}</small></td>
+      <td><span class="badge bg-secondary">${p.categoria}</span></td>
+      <td>${p.unidade || '-'}</td>
+      <td>${p.ativo ? '<span class="badge bg-success">Ativo</span>' : '<span class="badge bg-secondary">Inativo</span>'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick="editProduto('${p._id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduto('${p._id}')"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  renderPagination(data);
+}
+
+function renderPagination(data) {
+  document.getElementById('pagination').innerHTML = data.pages > 1 ? `
+    <ul class="pagination pagination-sm justify-content-center mb-0">
+      <li class="page-item ${page <= 1 ? 'disabled' : ''}"><button class="page-link" onclick="page--;loadProdutos()">Anterior</button></li>
+      <li class="page-item disabled"><span class="page-link">${data.page} de ${data.pages}</span></li>
+      <li class="page-item ${page >= data.pages ? 'disabled' : ''}"><button class="page-link" onclick="page++;loadProdutos()">Proximo</button></li>
+    </ul>
+  ` : '';
+}
+
+function resetForm() {
+  document.getElementById('produtoForm').reset();
+  document.querySelector('[name="produtoId"]').value = '';
+  document.getElementById('modalTitle').textContent = 'Novo Produto';
+}
+
+async function editProduto(id) {
+  const data = await api('/api/produtos/' + id);
+  const p = data.produto;
+  document.getElementById('modalTitle').textContent = 'Editar Produto';
+  Object.keys(p).forEach(k => {
+    const el = document.querySelector(`[name="${k}"]`);
+    if (el) el.value = p[k] ?? '';
+  });
+  document.querySelector('[name="produtoId"]').value = p._id;
+  new bootstrap.Modal(document.getElementById('produtoModal')).show();
+}
+
+async function deleteProduto(id) {
+  if (!confirm('Remover produto?')) return;
+  await api('/api/produtos/' + id, { method: 'DELETE' });
+  loadProdutos();
+}
+
+document.getElementById('produtoForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const id = data.produtoId; delete data.produtoId;
+  try {
+    if (id) await api('/api/produtos/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    else await api('/api/produtos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    bootstrap.Modal.getInstance(document.getElementById('produtoModal')).hide();
+    loadProdutos();
+  } catch (err) { alert(err.message); }
+});
+
+loadProdutos();
+</script>
+<%- include('../partials/footer') %>

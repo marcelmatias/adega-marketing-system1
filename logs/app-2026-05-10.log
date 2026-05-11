@@ -1,0 +1,247 @@
+[2026-05-10T06:42:04.320Z] [INFO] Conectado ao MongoDB
+[2026-05-10T06:42:04.364Z] [INFO] Colecoes limpas
+[2026-05-10T06:42:04.384Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-10T06:42:05.654Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-10T06:42:05.672Z] [INFO] 10 produtos criados
+[2026-05-10T06:42:05.683Z] [INFO] 5 campanhas criadas
+[2026-05-10T06:42:05.930Z] [INFO] 237 vendas criadas (ultimos 30 dias)
+[2026-05-10T06:42:06.021Z] [INFO] 252 registros financeiros criados (vendas + despesas)
+[2026-05-10T06:44:28.415Z] [INFO] MongoDB conectado
+[2026-05-10T06:44:28.419Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:45:33.477Z] [INFO] MongoDB conectado
+[2026-05-10T06:45:33.482Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:45:34.242Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:45:38.970Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:45:44.419Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:45:58.499Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:46:06.186Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:46:19.376Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:46:19.421Z] [ERROR] Nao encontrado - /api/midias//tv-toggle | /api/midias//tv-toggle
+[2026-05-10T06:46:29.100Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:46:38.989Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:48:14.586Z] [INFO] MongoDB conectado
+[2026-05-10T06:48:14.591Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:48:22.522Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:48:54.255Z] [INFO] Campanha criada: teste
+[2026-05-10T06:52:35.037Z] [INFO] MongoDB conectado
+[2026-05-10T06:52:35.042Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:52:40.568Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:53:18.134Z] [INFO] MongoDB conectado
+[2026-05-10T06:53:18.139Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:53:23.469Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:53:53.986Z] [INFO] MongoDB conectado
+[2026-05-10T06:53:53.990Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:53:59.237Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:54:56.733Z] [INFO] MongoDB conectado
+[2026-05-10T06:54:56.738Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T06:54:58.704Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:55:15.873Z] [INFO] Campanha criada: teste
+[2026-05-10T06:57:31.459Z] [INFO] MongoDB conectado
+[2026-05-10T06:57:36.677Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:58:23.930Z] [INFO] MongoDB conectado
+[2026-05-10T06:58:29.161Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:58:41.055Z] [INFO] MongoDB conectado
+[2026-05-10T06:58:46.289Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:58:59.018Z] [INFO] MongoDB conectado
+[2026-05-10T06:58:59.213Z] [INFO] Midia adicionada a campanha teste: AdobeStock_708759021_Preview_Editorial_Use_Only.jpeg
+[2026-05-10T06:59:04.276Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T06:59:56.377Z] [INFO] Campanha teste ativoNaTV = true
+[2026-05-10T07:00:01.840Z] [INFO] [YOUTUBE MOCK] Video publicado: teste
+[2026-05-10T07:00:01.844Z] [INFO] [CAMPANHA] Campanha publicada: teste (adega: 6a0028bc451680ae227e8e5e)
+[2026-05-10T07:00:01.844Z] [INFO] Campanha publicada no YouTube: teste
+[2026-05-10T07:00:32.032Z] [INFO] [YOUTUBE MOCK] Video publicado: teste
+[2026-05-10T07:00:32.035Z] [INFO] [CAMPANHA] Campanha publicada: teste (adega: 6a0028bc451680ae227e8e5e)
+[2026-05-10T07:00:32.035Z] [INFO] Campanha publicada no YouTube: teste
+[2026-05-10T07:03:54.881Z] [INFO] Campanha Jack Daniels - Dicas de Drink ativoNaTV = false
+[2026-05-10T07:04:18.412Z] [INFO] Midia adicionada a campanha Happy Hour Heineken: AdobeStock_1387605140_Preview_Editorial_Use_Only.jpeg
+[2026-05-10T07:06:19.173Z] [INFO] MongoDB conectado
+[2026-05-10T07:06:24.275Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T07:06:24.486Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\player-tv.ejs:56
+    54| 
+    55|   <script>
+ >> 56|     const ADEGA_INFO = <%- JSON.stringify(adegaInfo || null) %>;
+    57| 
+    58|     let playlist = [];
+    59|     let currentEntryIdx = 0;
+
+adegaInfo is not defined | /player-tv
+[2026-05-10T07:06:24.508Z] [INFO] Configuracoes atualizadas: Adega Exemplo
+[2026-05-10T07:06:36.747Z] [INFO] Audio adicionado a campanha teste: 01.mp3
+[2026-05-10T07:06:51.434Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\player-tv.ejs:56
+    54| 
+    55|   <script>
+ >> 56|     const ADEGA_INFO = <%- JSON.stringify(adegaInfo || null) %>;
+    57| 
+    58|     let playlist = [];
+    59|     let currentEntryIdx = 0;
+
+adegaInfo is not defined | /player-tv
+[2026-05-10T07:06:56.345Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\player-tv.ejs:56
+    54| 
+    55|   <script>
+ >> 56|     const ADEGA_INFO = <%- JSON.stringify(adegaInfo || null) %>;
+    57| 
+    58|     let playlist = [];
+    59|     let currentEntryIdx = 0;
+
+adegaInfo is not defined | /player-tv
+[2026-05-10T07:08:27.925Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\player-tv.ejs:56
+    54| 
+    55|   <script>
+ >> 56|     const ADEGA_INFO = <%- JSON.stringify(adegaInfo || null) %>;
+    57| 
+    58|     let playlist = [];
+    59|     let currentEntryIdx = 0;
+
+adegaInfo is not defined | /player-tv
+[2026-05-10T07:10:56.207Z] [INFO] Conectado ao MongoDB
+[2026-05-10T07:10:56.250Z] [INFO] Colecoes limpas
+[2026-05-10T07:10:56.270Z] [INFO] Adega criada: Adega Exemplo
+[2026-05-10T07:10:57.532Z] [INFO] Usuarios criados (admin: admin@adega.com / 123456)
+[2026-05-10T07:10:57.555Z] [INFO] 10 produtos criados
+[2026-05-10T07:10:57.571Z] [INFO] 5 campanhas criadas
+[2026-05-10T07:10:57.612Z] [INFO] 12 registros financeiros criados (despesas)
+[2026-05-10T07:14:02.858Z] [INFO] MongoDB conectado
+[2026-05-10T07:14:02.863Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T07:14:10.371Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T07:45:44.369Z] [INFO] MongoDB conectado
+[2026-05-10T07:45:44.374Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T07:45:47.967Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T07:46:52.344Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T07:47:17.615Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T07:47:45.013Z] [INFO] MongoDB conectado
+[2026-05-10T07:47:45.018Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T07:47:45.076Z] [ERROR] Erro callback OAuth YouTube: State mismatch. Possivel ataque CSRF.
+[2026-05-10T07:47:47.393Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T07:47:52.389Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T07:48:13.662Z] [INFO] MongoDB conectado
+[2026-05-10T07:48:13.667Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T07:48:16.173Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T07:48:38.777Z] [INFO] YouTube OAuth concluido para adega: Adega Exemplo Teste
+[2026-05-10T07:48:48.288Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T07:49:11.141Z] [INFO] Campanha Promocao Skol - Verao 2025 ativoNaTV = true
+[2026-05-10T07:49:32.800Z] [INFO] Audio adicionado a campanha Promocao Skol - Verao 2025: 01.mp3
+[2026-05-10T07:49:51.890Z] [INFO] Midia adicionada a campanha Jack Daniels - Dicas de Drink: CÃ³pia de CÃ³pia de Templates Premium Canva - Cervejaria 1.jpg
+[2026-05-10T07:49:58.927Z] [INFO] Audio adicionado a campanha Jack Daniels - Dicas de Drink: 01.mp3
+[2026-05-10T07:50:36.720Z] [INFO] Midia adicionada a campanha Promocao Skol - Verao 2025: CÃ³pia de CÃ³pia de Templates Premium Canva - Cervejaria 1.jpg
+[2026-05-10T07:50:58.367Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T07:50:59.419Z] [ERROR] Erro YouTube upload: Request contains an invalid argument.
+[2026-05-10T07:57:27.182Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T07:59:06.607Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T07:59:23.561Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T07:59:31.995Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T08:02:44.546Z] [INFO] Midia removida da campanha Jack Daniels - Dicas de Drink
+[2026-05-10T08:20:50.575Z] [INFO] Campanha criada: Skol
+[2026-05-10T08:20:58.560Z] [ERROR] Nao encontrado - /api/midias/6a003fe226506aae602ec16e/youtube-video | /api/midias/6a003fe226506aae602ec16e/youtube-video
+[2026-05-10T08:21:04.295Z] [ERROR] Nao encontrado - /api/midias/6a003fe226506aae602ec16e/youtube-video | /api/midias/6a003fe226506aae602ec16e/youtube-video
+[2026-05-10T08:27:53.024Z] [ERROR] Nao encontrado - /api/midias/6a003fe226506aae602ec16e/youtube-video | /api/midias/6a003fe226506aae602ec16e/youtube-video
+[2026-05-10T08:28:08.607Z] [ERROR] Nao encontrado - /api/midias/6a003fe226506aae602ec16e/youtube-video | /api/midias/6a003fe226506aae602ec16e/youtube-video
+[2026-05-10T08:28:30.642Z] [INFO] MongoDB conectado
+[2026-05-10T08:28:30.647Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T08:28:44.751Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T08:29:04.013Z] [INFO] YouTube video importado: Feriado desce redondo com Skol (30s)
+[2026-05-10T08:29:21.453Z] [ERROR] Erro YouTube upload: Request contains an invalid argument.
+[2026-05-10T08:29:27.715Z] [ERROR] Erro YouTube upload: Request contains an invalid argument.
+[2026-05-10T08:29:56.270Z] [INFO] Campanha Skol ativoNaTV = true
+[2026-05-10T08:30:00.032Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:00:03.773Z] [INFO] Midia removida da campanha Skol
+[2026-05-10T09:00:40.588Z] [INFO] YouTube video importado: Feriado desce redondo com Skol (30s)
+[2026-05-10T09:00:56.095Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:02:11.840Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:08:17.322Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:08:24.446Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:08:28.139Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:09:00.183Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:23:58.898Z] [ERROR] Erro MongoDB: connect ECONNREFUSED ::1:27017, connect ECONNREFUSED 127.0.0.1:27017
+[2026-05-10T09:24:05.394Z] [ERROR] Nao encontrado - /admin/live | /admin/live
+[2026-05-10T09:24:21.938Z] [ERROR] Nao encontrado - /admin/live | /admin/live
+[2026-05-10T09:24:37.757Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T09:24:40.378Z] [ERROR] Nao encontrado - /admin/live | /admin/live
+[2026-05-10T09:25:00.702Z] [INFO] MongoDB conectado
+[2026-05-10T09:25:00.707Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T09:25:03.761Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T09:25:15.889Z] [ERROR] Erro iniciar live: Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 26 on line 38 column 144 of data: Entity 'bull' not defined
+[2026-05-10T09:25:22.438Z] [ERROR] Erro iniciar live: Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 26 on line 38 column 144 of data: Entity 'bull' not defined
+[2026-05-10T09:33:55.070Z] [ERROR] Erro iniciar live: Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 26 on line 38 column 144 of data: Entity 'bull' not defined
+[2026-05-10T09:33:59.589Z] [ERROR] Erro iniciar live: Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 26 on line 38 column 144 of data: Entity 'bull' not defined
+[2026-05-10T09:34:09.539Z] [INFO] MongoDB conectado
+[2026-05-10T09:34:09.544Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T09:34:09.947Z] [ERROR] Nao encontrado - /favicon.ico | /favicon.ico
+[2026-05-10T09:34:11.825Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T09:34:20.827Z] [ERROR] Erro criar live: The user is not enabled for live streaming.
+[2026-05-10T09:34:20.828Z] [ERROR] Erro iniciar live: Falha ao criar live no YouTube
+[2026-05-10T16:33:30.174Z] [ERROR] Nao encontrado - /admin/instagram | /admin/instagram
+[2026-05-10T16:34:18.472Z] [INFO] MongoDB conectado
+[2026-05-10T16:34:18.477Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T16:34:24.658Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T17:01:08.394Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:04:44.780Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:04:55.170Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:06:00.398Z] [INFO] [INSTAGRAM MOCK] Post criado: VIDEO - 
+[2026-05-10T17:06:00.404Z] [INFO] Post Instagram criado: 6a00baf8028bade9ce47f2e2
+[2026-05-10T17:06:42.705Z] [INFO] Post Instagram removido: 6a00baf8028bade9ce47f2e2
+[2026-05-10T17:07:04.916Z] [INFO] [INSTAGRAM MOCK] Post criado: IMAGE - teste
+[2026-05-10T17:07:04.919Z] [INFO] Post Instagram criado: 6a00bb38028bade9ce47f2f1
+[2026-05-10T17:10:03.761Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:10:16.216Z] [INFO] Post Instagram removido: 6a00bb38028bade9ce47f2f1
+[2026-05-10T17:10:39.971Z] [INFO] [INSTAGRAM MOCK] Post criado: IMAGE - teste
+[2026-05-10T17:10:39.974Z] [INFO] Post Instagram criado: 6a00bc0f028bade9ce47f30c
+[2026-05-10T17:11:27.253Z] [INFO] Post Instagram removido: 6a00bc0f028bade9ce47f30c
+[2026-05-10T17:11:42.730Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:15:29.908Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:15:34.928Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:15:47.766Z] [INFO] MongoDB conectado
+[2026-05-10T17:15:47.771Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T17:15:55.300Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T17:16:08.414Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:16:13.957Z] [ERROR] Erro listar posts Instagram: Request failed with status code 400
+[2026-05-10T17:16:27.078Z] [ERROR] Erro listar posts Instagram: Request failed with status code 400
+[2026-05-10T17:16:51.330Z] [ERROR] Erro criar post Instagram: Request failed with status code 400
+[2026-05-10T17:17:02.196Z] [ERROR] Erro criar post Instagram: Request failed with status code 400
+[2026-05-10T17:17:08.193Z] [ERROR] Erro criar post Instagram: Request failed with status code 400
+[2026-05-10T17:17:13.161Z] [ERROR] Erro criar post Instagram: Request failed with status code 400
+[2026-05-10T17:17:18.554Z] [ERROR] Erro criar post Instagram: Request failed with status code 400
+[2026-05-10T17:21:16.435Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T17:21:21.279Z] [ERROR] Nao encontrado - /api/instagram/testar | /api/instagram/testar
+[2026-05-10T17:21:35.140Z] [INFO] MongoDB conectado
+[2026-05-10T17:21:35.145Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T17:21:41.483Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T17:24:31.180Z] [INFO] MongoDB conectado
+[2026-05-10T17:24:31.185Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T17:24:36.204Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T17:24:38.749Z] [ERROR] Erro listar posts Instagram: Request failed with status code 400
+[2026-05-10T17:27:20.501Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T22:26:37.429Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\configuracoes.ejs:204
+    202|             <h6 class="mb-0"><i class="bi bi-instagram text-danger"></i> Instagram</h6>
+    203|             <div>
+ >> 204|               <% if (instagramConectado) { %>
+    205|                 <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Conectado</span>
+    206|               <% } else { %>
+    207|                 <span class="badge bg-secondary me-2"><i class="bi bi-x-circle"></i> Desconectado</span>
+
+instagramConectado is not defined | /admin/configuracoes
+[2026-05-10T22:26:44.857Z] [ERROR] Erro listar posts Instagram: Request failed with status code 400
+[2026-05-10T22:26:48.698Z] [ERROR] C:\Users\Administrator\Documents\Projeto\adega-marketing-system\views\pages\configuracoes.ejs:204
+    202|             <h6 class="mb-0"><i class="bi bi-instagram text-danger"></i> Instagram</h6>
+    203|             <div>
+ >> 204|               <% if (instagramConectado) { %>
+    205|                 <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Conectado</span>
+    206|               <% } else { %>
+    207|                 <span class="badge bg-secondary me-2"><i class="bi bi-x-circle"></i> Desconectado</span>
+
+instagramConectado is not defined | /admin/configuracoes
+[2026-05-10T22:27:04.263Z] [INFO] MongoDB conectado
+[2026-05-10T22:27:04.268Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T22:27:09.454Z] [INFO] Login OK: admin@adega.com (admin)
+[2026-05-10T22:27:49.133Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T22:28:09.295Z] [INFO] Configuracoes atualizadas: Adega Exemplo Teste
+[2026-05-10T23:49:15.007Z] [INFO] MongoDB conectado
+[2026-05-10T23:49:15.012Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T23:51:09.807Z] [INFO] MongoDB conectado
+[2026-05-10T23:51:09.812Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T23:55:31.620Z] [INFO] MongoDB conectado
+[2026-05-10T23:55:31.625Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T23:55:47.553Z] [INFO] MongoDB conectado
+[2026-05-10T23:55:47.558Z] [INFO] Servidor rodando em http://localhost:3010
+[2026-05-10T23:56:32.748Z] [INFO] MongoDB conectado
+[2026-05-10T23:56:32.753Z] [INFO] Servidor rodando em http://localhost:3010

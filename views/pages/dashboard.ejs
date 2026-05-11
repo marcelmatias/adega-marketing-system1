@@ -1,0 +1,138 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-grid"></i> Dashboard</h4>
+    <small class="text-muted" id="lastUpdate"></small>
+  </div>
+
+  <div class="row g-3 mb-4" id="metricCards">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div><small class="text-muted">Produtos</small><h3 id="totalProdutos" class="mb-0">-</h3></div>
+            <i class="bi bi-box text-primary" style="font-size: 2rem; opacity: 0.5;"></i>
+          </div>
+          <small class="text-danger" id="estoqueBaixo"></small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div><small class="text-muted">Campanhas</small><h3 id="totalCampanhas" class="mb-0">-</h3></div>
+            <i class="bi bi-megaphone text-danger" style="font-size: 2rem; opacity: 0.5;"></i>
+          </div>
+          <small class="text-muted" id="campanhasStatus"></small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div><small class="text-muted">Ativas na TV</small><h3 id="ativasTV" class="mb-0">-</h3></div>
+            <i class="bi bi-tv text-success" style="font-size: 2rem; opacity: 0.5;"></i>
+          </div>
+          <small class="text-muted" id="tvInfo"></small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div><small class="text-muted">Publicadas</small><h3 id="publicadas" class="mb-0">-</h3></div>
+            <i class="bi bi-youtube text-danger" style="font-size: 2rem; opacity: 0.5;"></i>
+          </div>
+          <small class="text-muted" id="youtubeInfo"></small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h6 class="mb-0"><i class="bi bi-clock-history"></i> Ultimas Campanhas</h6>
+          <a href="/admin/campanhas" class="btn btn-sm btn-outline-danger">Ver todas</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush" id="ultimasCampanhas">
+            <div class="list-group-item text-center text-muted py-4">Nenhuma campanha encontrada</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-pie-chart"></i> Status</h6></div>
+        <div class="card-body"><canvas id="statusChart" height="200"></canvas></div>
+      </div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0"><i class="bi bi-tv"></i> Player TV</h6></div>
+        <div class="card-body text-center">
+          <p class="text-muted small mb-2">Abra o player em tela cheia</p>
+          <a href="/player-tv" target="_blank" class="btn btn-danger btn-lg w-100">
+            <i class="bi bi-play-circle"></i> Abrir TV
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadDashboard() {
+  try {
+    const data = await api('/api/dashboard');
+    document.getElementById('totalProdutos').textContent = data.totalProdutos || 0;
+    document.getElementById('estoqueBaixo').textContent = data.produtosEstoqueBaixo ? `${data.produtosEstoqueBaixo} com estoque baixo` : '';
+    document.getElementById('totalCampanhas').textContent = data.totalCampanhas || 0;
+    document.getElementById('campanhasStatus').textContent = `${data.rascunho || 0} rascunho / ${data.prontas || 0} pronto / ${data.publicadas || 0} publicado`;
+    document.getElementById('ativasTV').textContent = data.ativasTV || 0;
+    document.getElementById('tvInfo').textContent = data.ativasTV > 0 ? `${data.ativasTV} campanhas em loop` : 'nenhuma ativa';
+    document.getElementById('publicadas').textContent = data.publicadas || 0;
+    document.getElementById('youtubeInfo').textContent = data.publicadas > 0 ? `${data.publicadas} no YouTube` : '';
+    document.getElementById('lastUpdate').textContent = `Atualizado: ${new Date().toLocaleTimeString()}`;
+
+    const lista = document.getElementById('ultimasCampanhas');
+    if (data.ultimasCampanhas && data.ultimasCampanhas.length) {
+      lista.innerHTML = data.ultimasCampanhas.map(c => {
+        const statusBadge = c.status === 'publicado' ? 'success' : c.status === 'pronto' ? 'primary' : 'secondary';
+        const tvIcon = c.ativoNaTV ? '<i class="bi bi-tv text-success ms-2" title="Ativa na TV"></i>' : '';
+        return `<a href="/admin/campanhas/${c._id}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+          <div>
+            <strong>${c.nome}</strong>${tvIcon}
+            <br><small class="text-muted">${c.tipo} | ${new Date(c.updatedAt).toLocaleDateString()}</small>
+          </div>
+          <span class="badge bg-${statusBadge}">${c.status}</span>
+        </a>`;
+      }).join('');
+    }
+
+    const ctx = document.getElementById('statusChart');
+    if (ctx && (data.rascunho || data.prontas || data.publicadas)) {
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Rascunho', 'Pronto', 'Publicado'],
+          datasets: [{
+            data: [data.rascunho || 0, data.prontas || 0, data.publicadas || 0],
+            backgroundColor: ['#6c757d', '#0d6efd', '#198754'],
+          }],
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+      });
+    }
+  } catch (err) { console.error(err); }
+}
+
+loadDashboard();
+setInterval(loadDashboard, 30000);
+</script>
+<%- include('../partials/footer') %>

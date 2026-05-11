@@ -1,0 +1,195 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-instagram"></i> Instagram</h4>
+    <div>
+      <span id="igStatusBadge" class="badge bg-secondary me-2"><i class="bi bi-circle"></i> Desconectado</span>
+      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#postModal" onclick="carregarConteudo()"><i class="bi bi-plus-lg"></i> Novo Post</button>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr><th>Midia</th><th>Legenda</th><th>Tipo</th><th>Origem</th><th>Status</th><th>Instagram</th><th>Publicado</th><th>Acoes</th></tr>
+          </thead>
+          <tbody id="postsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="postModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">Novo Post no Instagram</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="postForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Conteudo de origem</label>
+            <select class="form-select" id="origemSelect" onchange="onOrigemChange()">
+              <option value="">URL direta (personalizado)</option>
+              <option value="campanha">Campanha</option>
+              <option value="produto">Produto</option>
+            </select>
+          </div>
+          <div class="mb-3 d-none" id="campanhaGroup">
+            <label class="form-label">Campanha</label>
+            <select class="form-select" id="campanhaSelect" onchange="onCampanhaSelect()"></select>
+          </div>
+          <div class="mb-3 d-none" id="produtoGroup">
+            <label class="form-label">Produto</label>
+            <select class="form-select" id="produtoSelect" onchange="onProdutoSelect()"></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">URL da midia *</label>
+            <input type="url" name="midiaUrl" class="form-control" id="midiaUrlInput" required placeholder="https://...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tipo *</label>
+            <select name="tipo" class="form-select">
+              <option value="IMAGE">Imagem</option>
+              <option value="VIDEO">Video</option>
+              <option value="REELS">Reels</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Legenda</label>
+            <textarea name="legenda" class="form-control" rows="3" maxlength="2200"></textarea>
+            <small class="text-muted">Maximo 2200 caracteres. Use #hashtags e @mencoes</small>
+          </div>
+          <input type="hidden" name="campanhaId" id="campanhaIdInput">
+          <input type="hidden" name="produtoId" id="produtoIdInput">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger"><i class="bi bi-instagram"></i> Publicar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+async function atualizarStatus() {
+  try {
+    const data = await api('/api/instagram/status');
+    const badge = document.getElementById('igStatusBadge');
+    if (data.conectado && !data.mock) {
+      badge.className = 'badge bg-success me-2';
+      badge.innerHTML = '<i class="bi bi-check-circle"></i> Conectado (ID: ' + data.igUserId + ')';
+    } else if (data.mock) {
+      badge.className = 'badge bg-warning text-dark me-2';
+      badge.innerHTML = '<i class="bi bi-info-circle"></i> Modo simulado (mock)';
+    } else {
+      badge.className = 'badge bg-secondary me-2';
+      badge.innerHTML = '<i class="bi bi-circle"></i> Desconectado';
+    }
+  } catch (err) { showToast('Erro status: ' + err.message, 'error'); }
+}
+
+async function carregarPosts() {
+  try {
+    const data = await api('/api/instagram/posts');
+    const tbody = document.getElementById('postsTable');
+    const posts = data.posts || [];
+    tbody.innerHTML = posts.length === 0
+      ? '<tr><td colspan="8" class="text-center text-muted py-4">Nenhum post publicado</td></tr>'
+      : posts.map(p => {
+        const origem = p.campanhaId?.nome ? ('Campanha: ' + p.campanhaId.nome) : (p.produtoId?.nome ? 'Produto: ' + p.produtoId.nome : 'Personalizado');
+        const isMock = p.instagramPostId && p.instagramPostId.startsWith('mock_');
+        const igLink = (!isMock && p.permalink) ? '<a href="' + p.permalink + '" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>' : (isMock ? '<span class="badge bg-warning text-dark">simulado</span>' : '-');
+        return '<tr>' +
+          '<td>' + (p.midiaUrl ? '<img src="' + p.midiaUrl + '" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">' : '-') + '</td>' +
+          '<td><small>' + (p.legenda ? p.legenda.slice(0, 60) + (p.legenda.length > 60 ? '...' : '') : '-') + '</small></td>' +
+          '<td><span class="badge bg-secondary">' + p.tipo + '</span></td>' +
+          '<td><small>' + origem + '</small></td>' +
+          '<td><span class="badge ' + (isMock ? 'bg-warning text-dark' : p.status === 'publicado' ? 'bg-success' : p.status === 'erro' ? 'bg-danger' : 'bg-warning') + '">' + (isMock ? 'simulado' : p.status) + '</span></td>' +
+          '<td>' + igLink + '</td>' +
+          '<td><small>' + (p.publicadoEm ? new Date(p.publicadoEm).toLocaleDateString() : '-') + '</small></td>' +
+          '<td><button class="btn btn-sm btn-outline-danger" onclick="removerPost(\'' + p._id + '\')"><i class="bi bi-trash"></i></button></td>' +
+          '</tr>';
+      }).join('');
+  } catch (err) { showToast('Erro carregar posts: ' + err.message, 'error'); }
+}
+
+async function carregarConteudo() {
+  try {
+    const data = await api('/api/instagram/conteudo');
+    const campanhaSel = document.getElementById('campanhaSelect');
+    campanhaSel.innerHTML = '<option value="">Selecione...</option>' +
+      (data.campanhas || []).map(c => '<option value="' + c._id + '" data-url="' + (c.midiaUrl || '') + '" data-nome="' + c.nome + '">' + c.nome + (c.produtoNome ? ' (' + c.produtoNome + ')' : '') + '</option>').join('');
+
+    const prodSel = document.getElementById('produtoSelect');
+    prodSel.innerHTML = '<option value="">Selecione...</option>' +
+      (data.produtos || []).map(p => '<option value="' + p._id + '" data-url="' + (p.midiaUrl || '') + '" data-nome="' + p.nome + '">' + p.nome + ' - R$ ' + (p.preco || 0).toFixed(2) + '</option>').join('');
+  } catch (err) { showToast('Erro carregar conteudo: ' + err.message, 'error'); }
+}
+
+function onOrigemChange() {
+  const val = document.getElementById('origemSelect').value;
+  document.getElementById('campanhaGroup').classList.toggle('d-none', val !== 'campanha');
+  document.getElementById('produtoGroup').classList.toggle('d-none', val !== 'produto');
+  document.getElementById('campanhaIdInput').value = '';
+  document.getElementById('produtoIdInput').value = '';
+  if (val !== 'campanha') document.getElementById('midiaUrlInput').value = '';
+  if (val !== 'produto') document.getElementById('midiaUrlInput').value = '';
+}
+
+function onCampanhaSelect() {
+  const sel = document.getElementById('campanhaSelect');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.value) {
+    document.getElementById('midiaUrlInput').value = opt.dataset.url || '';
+    document.getElementById('campanhaIdInput').value = opt.value;
+  }
+}
+
+function onProdutoSelect() {
+  const sel = document.getElementById('produtoSelect');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.value) {
+    document.getElementById('midiaUrlInput').value = opt.dataset.url || '';
+    document.getElementById('produtoIdInput').value = opt.value;
+  }
+}
+
+async function removerPost(id) {
+  if (!confirm('Remover este post?')) return;
+  try {
+    await api('/api/instagram/posts/' + id, { method: 'DELETE' });
+    showToast('Post removido');
+    carregarPosts();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+document.getElementById('postForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Publicando...';
+  try {
+    await api('/api/instagram/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    bootstrap.Modal.getInstance(document.getElementById('postModal')).hide();
+    showToast('Post publicado no Instagram!');
+    carregarPosts();
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="bi bi-instagram"></i> Publicar'; }
+});
+
+atualizarStatus();
+carregarPosts();
+</script>
+<%- include('../partials/footer') %>
