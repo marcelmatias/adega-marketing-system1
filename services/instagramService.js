@@ -23,7 +23,7 @@ class InstagramService {
       return { ok: true, mock: true, message: 'Modo simulado - sem conexao real' };
     }
     if (!this.igUserId || !this.accessToken) {
-      return { ok: false, message: 'ID da conta ou Token de acesso nao preenchidos' };
+      return { ok: false, mock: false, message: 'Nao conectado. Clique em "Conectar Instagram" para autorizar o acesso.' };
     }
     try {
       const { data } = await axios.get(`${GRAPH_API}/${this.igUserId}`, {

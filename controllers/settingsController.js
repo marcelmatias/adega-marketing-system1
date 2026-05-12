@@ -104,6 +104,10 @@ exports.salvar = async (req, res) => {
       adega.youtubeConfig.mock = youtubeConfig.mock === 'true' || youtubeConfig.mock === true;
       if (youtubeConfig.playlistId !== undefined) adega.youtubeConfig.playlistId = youtubeConfig.playlistId;
       if (youtubeConfig.channelId !== undefined) adega.youtubeConfig.channelId = youtubeConfig.channelId;
+      // Auto ativa mock se nao ha credenciais
+      if (!adega.youtubeConfig.refreshToken) {
+        adega.youtubeConfig.mock = true;
+      }
     }
 
     if (canvaConfig) {
@@ -112,6 +116,10 @@ exports.salvar = async (req, res) => {
       adega.canvaConfig.mock = canvaConfig.mock === 'true' || canvaConfig.mock === true;
       if (canvaConfig.folderId !== undefined) adega.canvaConfig.folderId = canvaConfig.folderId;
       if (canvaConfig.brandTemplateId !== undefined) adega.canvaConfig.brandTemplateId = canvaConfig.brandTemplateId;
+      // Auto ativa mock se nao ha credenciais
+      if (!adega.canvaConfig.apiKey || !adega.canvaConfig.apiSecret) {
+        adega.canvaConfig.mock = true;
+      }
     }
 
     if (instagramConfig) {
@@ -120,6 +128,10 @@ exports.salvar = async (req, res) => {
       if (instagramConfig.facebookAppId !== undefined) adega.instagramConfig.facebookAppId = instagramConfig.facebookAppId;
       if (instagramConfig.facebookAppSecret !== undefined) adega.instagramConfig.facebookAppSecret = instagramConfig.facebookAppSecret;
       adega.instagramConfig.mock = instagramConfig.mock === 'true' || instagramConfig.mock === true;
+      // Auto ativa mock se nao ha credenciais
+      if (!adega.instagramConfig.accessToken && !adega.instagramConfig.igUserId) {
+        adega.instagramConfig.mock = true;
+      }
     }
 
     await adega.save();
