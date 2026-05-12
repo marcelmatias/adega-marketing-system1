@@ -1,10 +1,12 @@
 const { Router } = require('express');
 const canvaService = require('../services/canvaService');
 const { authenticateAPI, authorize } = require('../middlewares/authMiddleware');
+const { moduleAccess } = require('../middlewares/moduleMiddleware');
 
 const router = Router();
 
 router.use(authenticateAPI);
+router.use(moduleAccess('campanhas', 'canva'));
 
 // Middleware to load canva config once per request (falls back to system-level)
 router.use(async (req, res, next) => {

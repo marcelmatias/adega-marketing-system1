@@ -139,6 +139,7 @@ app.use('/api/pagamentos', require('./routes/paymentRoutes'));
 app.use('/admin/configuracoes', require('./routes/settingsRoutes'));
 
 const { authenticateView, authorize } = require('./middlewares/authMiddleware');
+const { moduleAccess } = require('./middlewares/moduleMiddleware');
 const Adega = require('./models/Adega');
 
 // View routes
@@ -149,7 +150,7 @@ app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/login')
 app.get('/admin', authenticateView, (req, res) => res.render('pages/dashboard'));
 app.get('/admin/produtos', authenticateView, (req, res) => res.render('pages/produtos'));
 app.get('/admin/financeiro', authenticateView, (req, res) => res.render('pages/financeiro'));
-app.get('/admin/campanhas', authenticateView, async (req, res) => {
+app.get('/admin/campanhas', authenticateView, moduleAccess('campanhas'), async (req, res) => {
   let adega = null;
   try { adega = await Adega.findById(req.session.user.adegaId).select('youtubeConfig canvaConfig').lean(); } catch (_) {}
   res.render('pages/campanhas', {
@@ -157,7 +158,7 @@ app.get('/admin/campanhas', authenticateView, async (req, res) => {
     canvaConfig: adega ? adega.canvaConfig : { mock: true },
   });
 });
-app.get('/admin/campanhas/:id', authenticateView, async (req, res) => {
+app.get('/admin/campanhas/:id', authenticateView, moduleAccess('campanhas'), async (req, res) => {
   const Campaign = require('./models/Campaign');
   try {
     const campanha = await Campaign.findById(req.params.id).populate('produtoId', 'nome preco').lean();
@@ -166,8 +167,8 @@ app.get('/admin/campanhas/:id', authenticateView, async (req, res) => {
     res.render('pages/campanha-detalhe', { campanha, midias });
   } catch (_) { res.redirect('/admin/campanhas'); }
 });
-app.get('/admin/live', authenticateView, (req, res) => res.render('pages/live'));
-app.get('/admin/instagram', authenticateView, (req, res) => res.render('pages/instagram'));
+app.get('/admin/live', authenticateView, moduleAccess('live'), (req, res) => res.render('pages/live'));
+app.get('/admin/instagram', authenticateView, moduleAccess('instagram'), (req, res) => res.render('pages/instagram'));
 
 app.get('/admin/super', authenticateView, authorize('superadmin'), (req, res) => res.render('pages/super/dashboard'));
 app.get('/admin/super/configuracoes', authenticateView, authorize('superadmin'), (req, res) => res.render('pages/super/config'));

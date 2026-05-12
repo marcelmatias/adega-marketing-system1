@@ -35,7 +35,7 @@ const planosIniciais = [
   {
     nome: 'Enterprise', slug: 'enterprise', descricao: 'Tudo liberado',
     precoMensal: 199.90, precoAnual: 1999.90,
-    modulos: ['campanhas', 'tv', 'youtube', 'instagram', 'canva', 'loja', 'estoque', 'caixa', 'entradas-saidas', 'financeiro'],
+    modulos: ['campanhas', 'tv', 'youtube', 'instagram', 'canva', 'loja', 'estoque', 'caixa', 'entradas-saidas', 'financeiro', 'live'],
     limites: { maxUsuarios: 20, maxProdutos: 9999, maxCampanhas: 9999, produtosPorPagina: true, suportePrioritario: true, exportarDados: true },
     destaque: false, ordem: 4,
   },
@@ -65,6 +65,7 @@ const modulosIndividuais = [
   { nome: 'Estoque', slug: 'estoque', descricao: 'Gestao completa de estoque com alertas de reposicao', descricaoCurta: 'Controle de estoque', icone: 'bi-box-seam', precoMensal: 19.90, precoAnual: 199.90, ordem: 8 },
   { nome: 'Caixa', slug: 'caixa', descricao: 'Registre vendas no caixa e acompanhe o fluxo do dia', descricaoCurta: 'Caixa diario', icone: 'bi-calculator', precoMensal: 14.90, precoAnual: 149.90, ordem: 9 },
   { nome: 'Financeiro', slug: 'financeiro', descricao: 'Relatorios financeiros, DRE, fluxo de caixa e projecoes', descricaoCurta: 'Relatorios financeiros', icone: 'bi-graph-up-arrow', precoMensal: 24.90, precoAnual: 249.90, ordem: 10 },
+  { nome: 'Live', slug: 'live', descricao: 'Transmita ao vivo com slides dos seus produtos para YouTube e Instagram', descricaoCurta: 'Transmissoes ao vivo', icone: 'bi-broadcast', precoMensal: 19.90, precoAnual: 199.90, ordem: 11 },
 ];
 
 const campanhasExemplo = [

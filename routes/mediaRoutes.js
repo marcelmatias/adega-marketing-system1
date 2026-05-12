@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { authenticateAPI, authorize } = require('../middlewares/authMiddleware');
 const { tenantMiddleware } = require('../middlewares/tenantMiddleware');
+const { moduleAccess } = require('../middlewares/moduleMiddleware');
 const upload = require('../middlewares/upload');
 const {
   uploadMidia, importarYoutubeVideo, removerMidia, reordenarMidias, atualizarDuracao,
@@ -12,6 +13,7 @@ const router = Router();
 router.use(authenticateAPI);
 router.use(tenantMiddleware);
 router.use(authorize('admin', 'staff'));
+router.use(moduleAccess('campanhas'));
 
 router.post('/:id/midias', upload.single('arquivo'), uploadMidia);
 router.post('/:id/youtube-video', importarYoutubeVideo);

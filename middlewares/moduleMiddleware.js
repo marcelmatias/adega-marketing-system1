@@ -13,6 +13,7 @@ const MODULOS = {
   CAIXA: 'caixa',
   ENTRADAS_SAIDAS: 'entradas-saidas',
   FINANCEIRO: 'financeiro',
+  LIVE: 'live',
 };
 
 const MODULO_ROTAS = {
@@ -26,6 +27,7 @@ const MODULO_ROTAS = {
   caixa: [],
   'entradas-saidas': ['/api/financeiro'],
   financeiro: ['/api/financeiro'],
+  live: ['/api/live', '/admin/live'],
 };
 
 // Cache with TTL
