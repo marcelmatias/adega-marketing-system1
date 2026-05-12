@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: adega-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build: .
+    container_name: adega-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/public/uploads
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/adega_marketing
+      - JWT_SECRET=${JWT_SECRET:-adega_jwt_secret_change_in_production}
+      - JWT_EXPIRES_IN=7d
+      - SESSION_SECRET=${SESSION_SECRET:-adega_session_secret}
+      - BASE_URL=${BASE_URL:-http://localhost:3000}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - FACEBOOK_APP_ID=${FACEBOOK_APP_ID:-}
+      - FACEBOOK_APP_SECRET=${FACEBOOK_APP_SECRET:-}
+      - MERCADO_PAGO_ACCESS_TOKEN=${MERCADO_PAGO_ACCESS_TOKEN:-}
+
+volumes:
+  mongo_data:
+  uploads:

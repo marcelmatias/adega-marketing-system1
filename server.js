@@ -64,6 +64,7 @@ const instagramRoutes = require('./routes/instagramRoutes');
 const planRoutes = require('./routes/planRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const socialRoutes = require('./routes/socialRoutes');
+const marketplaceRoutes = require('./routes/marketplaceRoutes');
 
 app.use('/api/adegas', adegaRoutes);
 app.use('/api/auth', authRoutes);
@@ -80,6 +81,7 @@ app.use('/api/midias', mediaRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api', planRoutes);
+app.use('/api', marketplaceRoutes);
 app.use('/api/pagamentos', paymentRoutes);
 
 app.use('/admin/configuracoes', settingsRoutes);
@@ -116,14 +118,20 @@ app.get('/admin/instagram', authenticateView, (req, res) => res.render('pages/in
 
 app.get('/admin/planos', authenticateView, async (req, res) => {
   const Plan = require('./models/Plan');
+  const Module = require('./models/Module');
   const Subscription = require('./models/Subscription');
+  const ModuleSubscription = require('./models/ModuleSubscription');
   const planos = await Plan.find({ ativo: true }).sort({ ordem: 1 });
+  const modulos = await Module.find({ ativo: true }).sort({ ordem: 1 });
   let assinatura = null;
+  let modulosAtivos = [];
   if (req.session.user?.adegaId) {
     assinatura = await Subscription.findOne({ adegaId: req.session.user.adegaId, status: { $in: ['ativo', 'trial'] } })
       .populate('planId').sort({ createdAt: -1 });
+    const ativos = await ModuleSubscription.find({ adegaId: req.session.user.adegaId, status: 'ativo' });
+    modulosAtivos = ativos.map(m => m.moduleSlug);
   }
-  res.render('pages/planos', { planos, assinatura });
+  res.render('pages/planos', { planos, modulos, assinatura, modulosAtivos });
 });
 
 app.get('/player-tv', async (req, res) => {

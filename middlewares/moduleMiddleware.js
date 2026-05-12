@@ -1,4 +1,5 @@
 const Subscription = require('../models/Subscription');
+const ModuleSubscription = require('../models/ModuleSubscription');
 const Plan = require('../models/Plan');
 
 const MODULOS = {
@@ -30,11 +31,29 @@ const MODULO_ROTAS = {
 async function getModulosLiberados(adegaId) {
   if (!adegaId) return [];
   try {
+    // Modules from plan
+    const planModulos = [];
     const sub = await Subscription.findOne({ adegaId, status: { $in: ['ativo', 'trial'] } })
       .populate('planId')
       .sort({ createdAt: -1 });
-    if (!sub || !sub.planId) return [];
-    return sub.planId.modulos || [];
+    if (sub?.planId?.modulos) {
+      planModulos.push(...sub.planId.modulos);
+    }
+
+    // Modules purchased individually
+    const modSubs = await ModuleSubscription.find({
+      adegaId,
+      status: 'ativo',
+      $or: [
+        { expiresAt: { $exists: false } },
+        { expiresAt: null },
+        { expiresAt: { $gt: new Date() } },
+      ],
+    });
+    const indModulos = modSubs.map(ms => ms.moduleSlug);
+
+    const todos = [...new Set([...planModulos, ...indModulos])];
+    return todos;
   } catch {
     return [];
   }
@@ -56,10 +75,10 @@ function moduleAccess(...modulos) {
 
     if (!temAcesso) {
       if (req.xhr || req.headers.accept?.includes('json')) {
-        return res.status(403).json({ error: 'Modulo nao disponivel no seu plano. Acesse /admin/planos para contratar.' });
+        return res.status(403).json({ error: 'Modulo nao disponivel. Acesse /admin/planos para contratar.' });
       }
-      req.flash('error', 'Este modulo nao esta disponivel no seu plano. <a href="/admin/planos">Ver planos</a>');
-      return res.redirect('/admin');
+      req.flash('error', 'Este modulo nao esta disponivel. <a href="/admin/planos">Ver planos e modulos avulsos</a>');
+      return res.redirect('/admin/planos');
     }
 
     next();

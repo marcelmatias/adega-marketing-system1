@@ -7,6 +7,7 @@ const Campaign = require('../models/Campaign');
 const Finance = require('../models/Finance');
 const Plan = require('../models/Plan');
 const Subscription = require('../models/Subscription');
+const Module = require('../models/Module');
 const logger = require('../utils/logger');
 
 const planosIniciais = [
@@ -53,6 +54,19 @@ const produtosExemplo = [
   { nome: 'Vinho Chileno Cabernet', categoria: 'vinho', preco: 49.90, custo: 32.00, estoque: 30, estoqueMinimo: 8, volume: '750ml', teorAlcoolico: 13.5 },
 ];
 
+const modulosIndividuais = [
+  { nome: 'Campanhas', slug: 'campanhas', descricao: 'Crie e gerencie campanhas de marketing com midias, YouTube e Canva', descricaoCurta: 'Campanhas de marketing', icone: 'bi-megaphone', precoMensal: 19.90, precoAnual: 199.90, ordem: 1, destaque: true },
+  { nome: 'Player TV', slug: 'tv', descricao: 'Exiba campanhas em looping na TV da sua adega com imagens e videos', descricaoCurta: 'TV de propaganda', icone: 'bi-tv', precoMensal: 14.90, precoAnual: 149.90, ordem: 2 },
+  { nome: 'Instagram', slug: 'instagram', descricao: 'Publique fotos e videos diretamente no Instagram da sua adega', descricaoCurta: 'Publicacao no Instagram', icone: 'bi-instagram', precoMensal: 14.90, precoAnual: 149.90, ordem: 3 },
+  { nome: 'YouTube', slug: 'youtube', descricao: 'Upload de videos, lives e gerenciamento de playlist no YouTube', descricaoCurta: 'Videos no YouTube', icone: 'bi-youtube', precoMensal: 14.90, precoAnual: 149.90, ordem: 4 },
+  { nome: 'Canva', slug: 'canva', descricao: 'Crie designs profissionais integrados com a API do Canva', descricaoCurta: 'Designs no Canva', icone: 'bi-palette', precoMensal: 9.90, precoAnual: 99.90, ordem: 5 },
+  { nome: 'Entradas e Saidas', slug: 'entradas-saidas', descricao: 'Controle financeiro completo com receitas, despesas e categorias', descricaoCurta: 'Controle financeiro', icone: 'bi-cash-stack', precoMensal: 19.90, precoAnual: 199.90, ordem: 6 },
+  { nome: 'Loja Online', slug: 'loja', descricao: 'Catalogo de produtos com vitrine digital para seus clientes', descricaoCurta: 'Loja virtual', icone: 'bi-cart', precoMensal: 29.90, precoAnual: 299.90, ordem: 7 },
+  { nome: 'Estoque', slug: 'estoque', descricao: 'Gestao completa de estoque com alertas de reposicao', descricaoCurta: 'Controle de estoque', icone: 'bi-box-seam', precoMensal: 19.90, precoAnual: 199.90, ordem: 8 },
+  { nome: 'Caixa', slug: 'caixa', descricao: 'Registre vendas no caixa e acompanhe o fluxo do dia', descricaoCurta: 'Caixa diario', icone: 'bi-calculator', precoMensal: 14.90, precoAnual: 149.90, ordem: 9 },
+  { nome: 'Financeiro', slug: 'financeiro', descricao: 'Relatorios financeiros, DRE, fluxo de caixa e projecoes', descricaoCurta: 'Relatorios financeiros', icone: 'bi-graph-up-arrow', precoMensal: 24.90, precoAnual: 249.90, ordem: 10 },
+];
+
 const campanhasExemplo = [
   { nome: 'Promocao Skol - Verao 2025', tipo: 'video', status: 'rascunho', tags: ['promocao', 'skol', 'verao'], ativoNaTV: false, duracaoPadraoImagem: 5 },
   { nome: 'Happy Hour Heineken', tipo: 'video', status: 'pronto', tags: ['happy-hour', 'heineken'], ativoNaTV: true, duracaoPadraoImagem: 7 },
@@ -69,6 +83,7 @@ async function seed() {
     await Promise.all([
       Adega.deleteMany({}), User.deleteMany({}), Product.deleteMany({}),
       Campaign.deleteMany({}), Finance.deleteMany({}), Plan.deleteMany({}), Subscription.deleteMany({}),
+      Module.deleteMany({}),
     ]);
     logger.info('Colecoes limpas');
 
@@ -103,6 +118,9 @@ async function seed() {
 
     const planos = await Plan.create(planosIniciais);
     logger.info(`${planos.length} planos criados`);
+
+    const modulos = await Module.create(modulosIndividuais);
+    logger.info(`${modulos.length} modulos avulsos criados`);
 
     await Subscription.create({
       adegaId: adega._id,

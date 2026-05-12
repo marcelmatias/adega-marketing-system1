@@ -1,0 +1,216 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="mb-4">
+    <h4 class="mb-1"><i class="bi bi-shop"></i> Planos e Modulos</h4>
+    <p class="text-muted">Escolha um plano ou assine modulos avulsos conforme sua necessidade</p>
+  </div>
+
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item"><button class="nav-link active" id="tab-planos" data-bs-toggle="tab" data-bs-target="#painel-planos" type="button"><i class="bi bi-box"></i> Planos</button></li>
+    <li class="nav-item"><button class="nav-link" id="tab-modulos" data-bs-toggle="tab" data-bs-target="#painel-modulos" type="button"><i class="bi bi-puzzle"></i> Modulos Avulsos</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- PLANOS -->
+    <div class="tab-pane fade show active" id="painel-planos">
+      <div class="row g-4">
+        <% planos.forEach(function(p) { %>
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 <%= p.destaque ? 'border-danger border-2' : '' %>">
+              <% if (p.destaque) { %><div class="card-header bg-danger text-white text-center py-2"><small><i class="bi bi-star-fill"></i> MAIS POPULAR</small></div><% } %>
+              <div class="card-body text-center">
+                <h5 class="card-title"><%= p.nome %></h5>
+                <p class="text-muted small"><%= p.descricao %></p>
+                <h3 class="text-danger fw-bold">R$ <%= p.precoMensal.toFixed(2).replace('.', ',') %></h3>
+                <small class="text-muted">/mes</small>
+                <% if (p.precoAnual > 0) { %>
+                  <p class="mt-2 mb-0"><small class="text-success">R$ <%= p.precoAnual.toFixed(2).replace('.', ',') %>/ano (economize <%= ((1 - p.precoAnual / (p.precoMensal * 12)) * 100).toFixed(0) %>%)</small></p>
+                <% } else { %>
+                  <p class="mt-2 mb-0"><small class="text-success">Gratuito</small></p>
+                <% } %>
+                <hr>
+                <ul class="list-unstyled text-start small">
+                  <li><i class="bi bi-check-circle text-success"></i> Usuarios: <%= p.limites.maxUsuarios %></li>
+                  <li><i class="bi bi-check-circle text-success"></i> Produtos: ate <%= p.limites.maxProdutos === 9999 ? 'ilimitado' : p.limites.maxProdutos %></li>
+                  <li><i class="bi bi-check-circle text-success"></i> Campanhas: ate <%= p.limites.maxCampanhas === 9999 ? 'ilimitado' : p.limites.maxCampanhas %></li>
+                  <li><i class="bi bi-check-circle text-success"></i> <%= p.modulos.length %> modulo(s) inclusos</li>
+                  <% if (p.limites.exportarDados) { %><li><i class="bi bi-check-circle text-success"></i> Exportacao de dados</li><% } %>
+                  <% if (p.limites.suportePrioritario) { %><li><i class="bi bi-check-circle text-success"></i> Suporte prioritario</li><% } %>
+                </ul>
+                <button class="btn btn-danger w-100 selecionar-plano" data-id="<%= p._id %>" data-nome="<%= p.nome %>" data-preco="<%= p.precoMensal %>">
+                  <% if (assinatura && String(assinatura.planId?._id) === String(p._id)) { %>Plano Atual<% } else if (p.precoMensal === 0) { %>Gratuito<% } else { %>Contratar<% } %>
+                </button>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <!-- MODULOS AVULSOS -->
+    <div class="tab-pane fade" id="painel-modulos">
+      <div class="row g-4">
+        <% modulos.forEach(function(m) { %>
+          <div class="col-md-4 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 <%= modulosAtivos.includes(m.slug) ? 'border-success' : '' %>">
+              <div class="card-body text-center">
+                <i class="bi <%= m.icone %>" style="font-size:2.5rem;color:<%= m.slug === 'instagram' ? '#E4405F' : m.slug === 'youtube' ? '#FF0000' : '#dc3545' %>;"></i>
+                <h6 class="mt-2"><%= m.nome %></h6>
+                <p class="text-muted small"><%= m.descricaoCurta %></p>
+                <h4 class="text-danger fw-bold">R$ <%= m.precoMensal.toFixed(2).replace('.', ',') %></h4>
+                <small class="text-muted">/mes</small>
+                <% if (modulosAtivos.includes(m.slug)) { %>
+                  <div class="mt-2"><span class="badge bg-success"><i class="bi bi-check-circle"></i> Ativo</span></div>
+                  <button class="btn btn-outline-danger btn-sm mt-2 cancelar-modulo" data-slug="<%= m.slug %>">Cancelar</button>
+                <% } else { %>
+                  <button class="btn btn-danger btn-sm mt-2 assinar-modulo" data-slug="<%= m.slug %>" data-nome="<%= m.nome %>" data-preco="<%= m.precoMensal %>">
+                    <i class="bi bi-cart-plus"></i> Assinar
+                  </button>
+                <% } %>
+              </div>
+              <div class="card-footer bg-transparent border-0 text-center pb-3">
+                <small class="text-muted"><%= m.descricao %></small>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Selecionar Plano -->
+<div class="modal fade" id="modalPlano" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="mb-0">Confirmar Plano</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p id="planoInfo" class="mb-3"></p>
+        <div class="mb-3">
+          <label class="form-label">Ciclo</label>
+          <select class="form-select" id="planoCiclo">
+            <option value="mensal">Mensal</option>
+            <option value="anual">Anual (economize)</option>
+          </select>
+        </div>
+        <div id="planoPreco" class="text-center h5 text-danger mb-0"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger w-100" id="btnConfirmarPlano"><i class="bi bi-cart-check"></i> Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Assinar Modulo -->
+<div class="modal fade" id="modalModulo" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="mb-0">Assinar Modulo</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p id="moduloInfo" class="mb-3"></p>
+        <div class="text-center h5 text-danger mb-0" id="moduloPreco"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger w-100" id="btnConfirmarModulo"><i class="bi bi-cart-check"></i> Assinar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let planoSelecionado = null;
+let moduloSelecionado = null;
+
+document.querySelectorAll('.selecionar-plano').forEach(btn => {
+  btn.addEventListener('click', function() {
+    planoSelecionado = this.dataset.id;
+    document.getElementById('planoInfo').textContent = 'Plano: ' + this.dataset.nome;
+    atualizarPrecoPlano();
+    const modal = new bootstrap.Modal(document.getElementById('modalPlano'));
+    modal.show();
+  });
+});
+
+document.getElementById('planoCiclo').addEventListener('change', atualizarPrecoPlano);
+
+function atualizarPrecoPlano() {
+  const btn = document.querySelector(`.selecionar-plano[data-id="${planoSelecionado}"]`);
+  if (!btn) return;
+  const precoMensal = parseFloat(btn.dataset.preco);
+  const ciclo = document.getElementById('planoCiclo').value;
+  const preco = ciclo === 'anual' ? precoMensal * 12 * 0.9 : precoMensal;
+  document.getElementById('planoPreco').textContent = 'R$ ' + preco.toFixed(2).replace('.', ',') + (ciclo === 'anual' ? ' /ano' : ' /mes');
+}
+
+document.getElementById('btnConfirmarPlano').addEventListener('click', async function() {
+  this.disabled = true;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
+  try {
+    const data = await api('/api/subscriptions/selecionar', {
+      method: 'POST',
+      body: JSON.stringify({ planId: planoSelecionado, ciclo: document.getElementById('planoCiclo').value }),
+    });
+    bootstrap.Modal.getInstance(document.getElementById('modalPlano')).hide();
+    if (data.pagamento?.qrCode) {
+      alert('Pagamento via PIX:\n' + data.pagamento.qrCode);
+    }
+    window.location.href = data.redirect || '/admin';
+  } catch (err) {
+    alert('Erro: ' + err.message);
+  } finally {
+    this.disabled = false;
+    this.innerHTML = '<i class="bi bi-cart-check"></i> Confirmar';
+  }
+});
+
+document.querySelectorAll('.assinar-modulo').forEach(btn => {
+  btn.addEventListener('click', function() {
+    moduloSelecionado = this.dataset.slug;
+    document.getElementById('moduloInfo').textContent = 'Modulo: ' + this.dataset.nome;
+    document.getElementById('moduloPreco').textContent = 'R$ ' + parseFloat(this.dataset.preco).toFixed(2).replace('.', ',') + ' /mes';
+    const modal = new bootstrap.Modal(document.getElementById('modalModulo'));
+    modal.show();
+  });
+});
+
+document.getElementById('btnConfirmarModulo').addEventListener('click', async function() {
+  this.disabled = true;
+  this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
+  try {
+    const data = await api('/api/marketplace/assinar-modulo', {
+      method: 'POST',
+      body: JSON.stringify({ moduleSlug: moduloSelecionado, ciclo: 'mensal' }),
+    });
+    bootstrap.Modal.getInstance(document.getElementById('modalModulo')).hide();
+    if (data.pagamento?.qrCode) {
+      alert('Pagamento via PIX:\n' + data.pagamento.qrCode);
+    }
+    window.location.reload();
+  } catch (err) {
+    alert('Erro: ' + err.message);
+  } finally {
+    this.disabled = false;
+    this.innerHTML = '<i class="bi bi-cart-check"></i> Assinar';
+  }
+});
+
+document.querySelectorAll('.cancelar-modulo').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    if (!confirm('Cancelar assinatura deste modulo?')) return;
+    this.disabled = true;
+    try {
+      await api('/api/marketplace/cancelar-modulo', {
+        method: 'POST',
+        body: JSON.stringify({ moduleSlug: this.dataset.slug }),
+      });
+      window.location.reload();
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    }
+  });
+});
+</script>
+<%- include('../partials/footer') %>
