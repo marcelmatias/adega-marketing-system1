@@ -5,7 +5,40 @@ const User = require('../models/User');
 const Product = require('../models/Product');
 const Campaign = require('../models/Campaign');
 const Finance = require('../models/Finance');
+const Plan = require('../models/Plan');
+const Subscription = require('../models/Subscription');
 const logger = require('../utils/logger');
+
+const planosIniciais = [
+  {
+    nome: 'Gratuito', slug: 'gratuito', descricao: 'Para testar o sistema',
+    precoMensal: 0, precoAnual: 0,
+    modulos: ['campanhas'],
+    limites: { maxUsuarios: 1, maxProdutos: 20, maxCampanhas: 5 },
+    destaque: false, ordem: 1,
+  },
+  {
+    nome: 'Basico', slug: 'basico', descricao: 'Para pequenas adegas',
+    precoMensal: 49.90, precoAnual: 499.90,
+    modulos: ['campanhas', 'tv', 'youtube'],
+    limites: { maxUsuarios: 2, maxProdutos: 50, maxCampanhas: 20, produtosPorPagina: true },
+    destaque: false, ordem: 2,
+  },
+  {
+    nome: 'Profissional', slug: 'profissional', descricao: 'Para crescimento',
+    precoMensal: 99.90, precoAnual: 999.90,
+    modulos: ['campanhas', 'tv', 'youtube', 'instagram', 'canva', 'entradas-saidas'],
+    limites: { maxUsuarios: 5, maxProdutos: 200, maxCampanhas: 100, produtosPorPagina: true, exportarDados: true },
+    destaque: true, ordem: 3,
+  },
+  {
+    nome: 'Enterprise', slug: 'enterprise', descricao: 'Tudo liberado',
+    precoMensal: 199.90, precoAnual: 1999.90,
+    modulos: ['campanhas', 'tv', 'youtube', 'instagram', 'canva', 'loja', 'estoque', 'caixa', 'entradas-saidas', 'financeiro'],
+    limites: { maxUsuarios: 20, maxProdutos: 9999, maxCampanhas: 9999, produtosPorPagina: true, suportePrioritario: true, exportarDados: true },
+    destaque: false, ordem: 4,
+  },
+];
 
 const produtosExemplo = [
   { nome: 'Skol Lata 350ml', categoria: 'cervesa', preco: 3.50, custo: 2.10, estoque: 200, estoqueMinimo: 50, volume: '350ml', teorAlcoolico: 4.5 },
@@ -35,7 +68,7 @@ async function seed() {
 
     await Promise.all([
       Adega.deleteMany({}), User.deleteMany({}), Product.deleteMany({}),
-      Campaign.deleteMany({}), Finance.deleteMany({}),
+      Campaign.deleteMany({}), Finance.deleteMany({}), Plan.deleteMany({}), Subscription.deleteMany({}),
     ]);
     logger.info('Colecoes limpas');
 
@@ -67,6 +100,19 @@ async function seed() {
       produtosExemplo.map(p => ({ ...p, adegaId: adega._id }))
     );
     logger.info(`${produtos.length} produtos criados`);
+
+    const planos = await Plan.create(planosIniciais);
+    logger.info(`${planos.length} planos criados`);
+
+    await Subscription.create({
+      adegaId: adega._id,
+      planId: planos[0]._id,
+      status: 'ativo',
+      ciclo: 'mensal',
+      modulosLiberados: planos[0].modulos,
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    });
+    logger.info('Assinatura gratuita criada para adega exemplo');
 
     const campanhas = await Campaign.create(
       campanhasExemplo.map(c => ({

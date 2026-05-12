@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const session = require('express-session');
 const flash = require('connect-flash');
 const rateLimit = require('express-rate-limit');
+const passport = require('./config/passport');
 
 const logger = require('./utils/logger');
 const { errorHandler, notFound } = require('./middlewares/errorMiddleware');
@@ -29,6 +30,8 @@ app.use(session({
   cookie: { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' },
 }));
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
@@ -40,7 +43,7 @@ app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success');
   res.locals.error_msg = req.flash('error');
   res.locals.user = req.session.user || null;
-  res.locals.title = 'Adega Marketing System';
+  res.locals.title = 'Rei da Adega';
   next();
 });
 
@@ -58,6 +61,9 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
 const liveRoutes = require('./routes/liveRoutes');
 const instagramRoutes = require('./routes/instagramRoutes');
+const planRoutes = require('./routes/planRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const socialRoutes = require('./routes/socialRoutes');
 
 app.use('/api/adegas', adegaRoutes);
 app.use('/api/auth', authRoutes);
@@ -69,9 +75,12 @@ app.use('/api/tv', tvRoutes);
 app.use('/api/canva', canvaRoutes);
 app.use('/api/youtube', youtubeRoutes);
 app.use('/auth', oauthRoutes);
+app.use('/auth', socialRoutes);
 app.use('/api/midias', mediaRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/instagram', instagramRoutes);
+app.use('/api', planRoutes);
+app.use('/api/pagamentos', paymentRoutes);
 
 app.use('/admin/configuracoes', settingsRoutes);
 
@@ -104,6 +113,18 @@ app.get('/admin/campanhas/:id', authenticateView, async (req, res) => {
 });
 app.get('/admin/live', authenticateView, (req, res) => res.render('pages/live'));
 app.get('/admin/instagram', authenticateView, (req, res) => res.render('pages/instagram'));
+
+app.get('/admin/planos', authenticateView, async (req, res) => {
+  const Plan = require('./models/Plan');
+  const Subscription = require('./models/Subscription');
+  const planos = await Plan.find({ ativo: true }).sort({ ordem: 1 });
+  let assinatura = null;
+  if (req.session.user?.adegaId) {
+    assinatura = await Subscription.findOne({ adegaId: req.session.user.adegaId, status: { $in: ['ativo', 'trial'] } })
+      .populate('planId').sort({ createdAt: -1 });
+  }
+  res.render('pages/planos', { planos, assinatura });
+});
 
 app.get('/player-tv', async (req, res) => {
   let adegaInfo = null;
