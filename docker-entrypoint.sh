@@ -1,6 +1,20 @@
 #!/bin/sh
 set -e
 
+echo "==> Validando variaveis de ambiente..."
+if [ -z "$JWT_SECRET" ]; then
+  echo "ERRO: JWT_SECRET nao definido. Configure a variavel de ambiente JWT_SECRET."
+  exit 1
+fi
+if [ -z "$SESSION_SECRET" ]; then
+  echo "ERRO: SESSION_SECRET nao definido. Configure a variavel de ambiente SESSION_SECRET."
+  exit 1
+fi
+if [ -z "$MONGODB_URI" ]; then
+  echo "ERRO: MONGODB_URI nao definido. Configure a variavel de ambiente MONGODB_URI."
+  exit 1
+fi
+
 echo "==> Aguardando MongoDB..."
 until node -e "
   const mongoose = require('mongoose');

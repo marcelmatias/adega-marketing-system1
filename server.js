@@ -37,6 +37,9 @@ app.use(cors({
 // Compression
 app.use(compression());
 
+// Trust proxy for reverse proxy deployments (Coolify, nginx, etc.)
+app.set('trust proxy', 1);
+
 // Rate limiting
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -68,6 +71,10 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Session
 const isProduction = process.env.NODE_ENV === 'production';
+if (!process.env.SESSION_SECRET) {
+  logger.error('SESSION_SECRET nao definido. Configure a variavel de ambiente SESSION_SECRET.');
+  process.exit(1);
+}
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
