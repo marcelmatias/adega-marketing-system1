@@ -34,6 +34,9 @@ const adegaSchema = new mongoose.Schema({
     facebookAppSecret: { type: String, default: '' },
     tokenExpiresAt: { type: Date, default: null },
   },
+  sistemaConfig: {
+    baseUrl: { type: String, default: '' },
+  },
   ativo: { type: Boolean, default: true },
 }, { timestamps: true });
 

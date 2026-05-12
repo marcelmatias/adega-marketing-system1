@@ -55,6 +55,7 @@ exports.exibir = async (req, res) => {
       youtubeChannels,
       instagramConectado,
       instagramAppOk,
+      baseUrl: adega.sistemaConfig?.baseUrl || '',
       flash: flashMsg,
     });
   } catch (err) {
@@ -72,7 +73,7 @@ exports.salvar = async (req, res) => {
       return res.redirect('/admin/configuracoes');
     }
 
-    const { nome, endereco, whatsapp, telefone, email, youtubeConfig, canvaConfig, instagramConfig } = req.body;
+    const { nome, endereco, whatsapp, telefone, email, youtubeConfig, canvaConfig, instagramConfig, sistemaConfig } = req.body;
 
     if (nome !== undefined) adega.nome = nome.trim();
     if (whatsapp !== undefined) adega.whatsapp = whatsapp;
@@ -89,6 +90,10 @@ exports.salvar = async (req, res) => {
 
     if (req.file) {
       adega.logo = '/uploads/adega/' + req.file.filename;
+    }
+
+    if (sistemaConfig) {
+      if (sistemaConfig.baseUrl !== undefined) adega.sistemaConfig.baseUrl = sistemaConfig.baseUrl;
     }
 
     if (youtubeConfig) {

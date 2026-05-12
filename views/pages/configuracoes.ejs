@@ -17,10 +17,33 @@
     <div class="alert alert-danger alert-dismissible fade show"><%= error_msg.join(', ') %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   <% } %>
 
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="tab-sistema" data-bs-toggle="tab" data-bs-target="#painel-sistema" type="button" role="tab">
+        <i class="bi bi-gear"></i> Sistema
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-youtube" data-bs-toggle="tab" data-bs-target="#painel-youtube" type="button" role="tab">
+        <i class="bi bi-youtube text-danger"></i> YouTube
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-canva" data-bs-toggle="tab" data-bs-target="#painel-canva" type="button" role="tab">
+        <i class="bi bi-palette text-primary"></i> Canva
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tab-instagram" data-bs-toggle="tab" data-bs-target="#painel-instagram" type="button" role="tab">
+        <i class="bi bi-instagram text-danger"></i> Instagram
+      </button>
+    </li>
+  </ul>
+
   <form action="/admin/configuracoes" method="POST" enctype="multipart/form-data">
-    <div class="row g-4">
-      <!-- Perfil da Adega -->
-      <div class="col-12">
+    <div class="tab-content">
+      <!-- === ABA SISTEMA === -->
+      <div class="tab-pane fade show active" id="painel-sistema" role="tabpanel">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white">
             <h6 class="mb-0"><i class="bi bi-shop"></i> Perfil da Adega</h6>
@@ -85,10 +108,31 @@
             </div>
           </div>
         </div>
+
+        <div class="card border-0 shadow-sm mt-4">
+          <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-globe"></i> URL do Sistema</h6>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small">Usada nos redirecionamentos OAuth (YouTube, Instagram). Preencha apenas se o sistema nao detectar automaticamente.</p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">URL Base</label>
+                <input type="url" class="form-control" name="sistemaConfig[baseUrl]" value="<%= baseUrl %>" placeholder="https://meudominio.com">
+                <div class="form-text">Deixe em branco para deteccao automatica.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-check-lg"></i> Salvar Configuracoes</button>
+          <a href="/admin" class="btn btn-outline-secondary btn-lg ms-2">Cancelar</a>
+        </div>
       </div>
 
-      <!-- YouTube -->
-      <div class="col-md-6">
+      <!-- === ABA YOUTUBE === -->
+      <div class="tab-pane fade" id="painel-youtube" role="tabpanel">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h6 class="mb-0"><i class="bi bi-youtube text-danger"></i> YouTube</h6>
@@ -158,12 +202,16 @@
                 <div class="form-text">Conecte-se ao YouTube para selecionar um canal.</div>
               <% } %>
             </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-danger"><i class="bi bi-check-lg"></i> Salvar Configuracoes</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Canva -->
-      <div class="col-md-6">
+      <!-- === ABA CANVA === -->
+      <div class="tab-pane fade" id="painel-canva" role="tabpanel">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white">
             <h6 class="mb-0"><i class="bi bi-palette text-primary"></i> Canva</h6>
@@ -189,14 +237,15 @@
               <label class="form-label">ID do Template</label>
               <input type="text" class="form-control" name="canvaConfig[brandTemplateId]" value="<%= adega.canvaConfig.brandTemplateId %>" placeholder="Template de marca">
             </div>
+            <div class="mt-4">
+              <button type="submit" class="btn btn-danger"><i class="bi bi-check-lg"></i> Salvar Configuracoes</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Instagram -->
-    <div class="row g-4 mt-2">
-      <div class="col-12">
+      <!-- === ABA INSTAGRAM === -->
+      <div class="tab-pane fade" id="painel-instagram" role="tabpanel">
         <div class="card border-0 shadow-sm">
           <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h6 class="mb-0"><i class="bi bi-instagram text-danger"></i> Instagram</h6>
@@ -224,6 +273,10 @@
               <label class="form-label">Facebook App Secret</label>
               <input type="password" class="form-control" name="instagramConfig[facebookAppSecret]" value="<%= adega.instagramConfig?.facebookAppSecret || '' %>" placeholder="Secret do seu aplicativo">
             </div>
+            <div class="alert alert-info py-2 mb-3">
+              <small><i class="bi bi-info-circle"></i> No <strong>Facebook Developers</strong> &gt; seu app &gt; <strong>Facebook Login</strong> &gt; <strong>Configuracoes</strong>, adicione esta URI em &quot;URIs de redirecionamento OAuth válidos&quot;:<br>
+              <code id="igRedirectUri">carregando...</code></small>
+            </div>
             <hr class="my-3">
             <div class="mb-3">
               <label class="form-label">ID da Conta Business do Instagram <small class="text-muted">(opcional - preenchido automaticamente pelo OAuth)</small></label>
@@ -234,19 +287,20 @@
               <i class="bi bi-plug"></i> Testar Conexao
             </button>
             <span id="igStatus" class="ms-2"></span>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-danger"><i class="bi bi-check-lg"></i> Salvar Configuracoes</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="mt-4">
-      <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-check-lg"></i> Salvar Configuracoes</button>
-      <a href="/admin" class="btn btn-outline-secondary btn-lg ms-2">Cancelar</a>
     </div>
   </form>
 </div>
 
 <script>
+document.getElementById('igRedirectUri').textContent = (window.location.origin + '/auth/instagram/callback').replace('3000', '3000');
+
 function testarInstagram() {
   const btn = document.querySelector('button[onclick="testarInstagram()"]');
   const status = document.getElementById('igStatus');

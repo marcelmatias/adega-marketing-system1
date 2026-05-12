@@ -4,6 +4,17 @@ const instagramService = require('../services/instagramService');
 const Adega = require('../models/Adega');
 const logger = require('../utils/logger');
 
+function getBaseUrl(req, adega) {
+  if (adega?.sistemaConfig?.baseUrl) {
+    return adega.sistemaConfig.baseUrl.replace(/\/+$/, '');
+  }
+  if (req.headers['x-forwarded-host']) {
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    return `${proto}://${req.headers['x-forwarded-host']}`;
+  }
+  return `${req.protocol}://${req.get('host')}`;
+}
+
 const router = Router();
 
 router.get('/youtube', async (req, res) => {
@@ -60,12 +71,13 @@ router.get('/youtube/callback', async (req, res) => {
 router.get('/instagram', async (req, res) => {
   try {
     let adegaConfig = null;
+    let adega = null;
     if (req.session.user && req.session.user.adegaId) {
-      const adega = await Adega.findById(req.session.user.adegaId);
+      adega = await Adega.findById(req.session.user.adegaId);
       if (adega) {
         adegaConfig = {
-          ...adega.instagramConfig,
-          redirectUri: `${req.protocol}://${req.get('host')}`,
+          ...adega.instagramConfig.toObject(),
+          redirectUri: getBaseUrl(req, adega),
         };
       }
     }
@@ -102,8 +114,8 @@ router.get('/instagram/callback', async (req, res) => {
     }
 
     const config = {
-      ...adega.instagramConfig,
-      redirectUri: `${req.protocol}://${req.get('host')}`,
+      ...adega.instagramConfig.toObject(),
+      redirectUri: getBaseUrl(req, adega),
     };
     const result = await instagramService.handleCallback(code, config);
 

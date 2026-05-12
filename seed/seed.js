@@ -48,6 +48,7 @@ async function seed() {
       endereco: { logradouro: 'Rua das Adegas', numero: '123', cidade: 'Sao Paulo', estado: 'SP' },
       youtubeConfig: { mock: true, playlistId: '', channelId: '' },
       canvaConfig: { mock: true, folderId: '', brandTemplateId: '' },
+      sistemaConfig: { baseUrl: '' },
     });
     logger.info(`Adega criada: ${adega.nome}`);
 
