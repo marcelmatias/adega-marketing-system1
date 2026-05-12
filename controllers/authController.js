@@ -104,6 +104,48 @@ exports.registrar = async (req, res) => {
   }
 };
 
+exports.loginTv = async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+    if (!email || !senha) {
+      req.flash('error', 'Preencha email e senha');
+      return res.redirect('/tv/login');
+    }
+    const user = await User.findOne({ email: email.toLowerCase().trim(), role: 'tv' });
+    if (!user) {
+      req.flash('error', 'Credenciais de TV invalidas');
+      return res.redirect('/tv/login');
+    }
+    if (!(await user.compararSenha(senha))) {
+      req.flash('error', 'Senha incorreta');
+      return res.redirect('/tv/login');
+    }
+    if (!user.ativo) {
+      req.flash('error', 'Usuario TV inativo');
+      return res.redirect('/tv/login');
+    }
+
+    req.session.user = {
+      _id: user._id.toString(),
+      nome: user.nome,
+      email: user.email,
+      role: 'tv',
+      adegaId: user.adegaId ? user.adegaId.toString() : null,
+    };
+
+    req.session.save((err) => {
+      if (err) {
+        req.flash('error', 'Erro ao criar sessao');
+        return res.redirect('/tv/login');
+      }
+      res.redirect('/player-tv');
+    });
+  } catch (err) {
+    req.flash('error', 'Erro ao autenticar: ' + err.message);
+    res.redirect('/tv/login');
+  }
+};
+
 exports.listarUsuarios = async (req, res) => {
   try {
     const users = await User.find({ adegaId: req.adegaId }).select('-senha');

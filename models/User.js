@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   nome: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   senha: { type: String, required: true, minlength: 6 },
-  role: { type: String, enum: ['superadmin', 'admin', 'staff', 'viewer'], default: 'staff' },
+  role: { type: String, enum: ['superadmin', 'admin', 'staff', 'viewer', 'tv'], default: 'staff' },
   socialId: { type: String, default: '' },
   socialProvider: { type: String, enum: ['', 'google', 'facebook'], default: '' },
   ativo: { type: Boolean, default: true },

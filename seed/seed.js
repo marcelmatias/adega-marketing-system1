@@ -111,6 +111,10 @@ async function seed() {
       adegaId: adega._id, nome: 'Visualizador', email: 'viewer@adega.com', senha: '123456', role: 'viewer',
     });
     await User.create({
+      adegaId: adega._id, nome: 'TV Adega', email: 'tv@adega.com', senha: '123456', role: 'tv',
+    });
+    logger.info('Usuario TV criado (tv@adega.com / 123456)');
+    await User.create({
       nome: 'Super Admin', email: 'super@reidaadega.com', senha: 'admin123', role: 'superadmin',
     });
     logger.info('Super admin criado (super@reidaadega.com / admin123)');

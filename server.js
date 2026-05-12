@@ -196,16 +196,26 @@ app.get('/admin/planos', authenticateView, async (req, res) => {
   res.render('pages/planos', { planos, modulos, assinatura, modulosAtivos });
 });
 
+app.get('/tv/login', (req, res) => {
+  if (req.session?.user?.role === 'tv') return res.redirect('/player-tv');
+  res.render('pages/login-tv');
+});
+
 app.get('/player-tv', async (req, res) => {
-  let adegaInfo = null;
-  if (req.session?.user?.adegaId) {
-    try {
-      const Adega = require('./models/Adega');
+  if (!req.session?.user || req.session.user.role !== 'tv') {
+    return res.redirect('/tv/login');
+  }
+  try {
+    const Adega = require('./models/Adega');
+    let adegaInfo = null;
+    if (req.session.user.adegaId) {
       const a = await Adega.findById(req.session.user.adegaId).select('nome logo endereco').lean();
       if (a) adegaInfo = { nome: a.nome, logo: a.logo, endereco: a.endereco };
-    } catch (_) {}
+    }
+    res.render('pages/player-tv', { adegaInfo });
+  } catch (_) {
+    res.render('pages/player-tv', { adegaInfo: null });
   }
-  res.render('pages/player-tv', { adegaInfo });
 });
 
 // Health check
