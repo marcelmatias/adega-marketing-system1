@@ -28,19 +28,29 @@ const MODULO_ROTAS = {
   financeiro: ['/api/financeiro'],
 };
 
+// Cache with TTL
+const cache = new Map();
+const CACHE_TTL = 30000; // 30 seconds
+
 async function getModulosLiberados(adegaId) {
   if (!adegaId) return [];
+
+  const cacheKey = `modulos_${adegaId}`;
+  const cached = cache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    return cached.data;
+  }
+
   try {
-    // Modules from plan
     const planModulos = [];
     const sub = await Subscription.findOne({ adegaId, status: { $in: ['ativo', 'trial'] } })
       .populate('planId')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     if (sub?.planId?.modulos) {
       planModulos.push(...sub.planId.modulos);
     }
 
-    // Modules purchased individually
     const modSubs = await ModuleSubscription.find({
       adegaId,
       status: 'ativo',
@@ -49,13 +59,21 @@ async function getModulosLiberados(adegaId) {
         { expiresAt: null },
         { expiresAt: { $gt: new Date() } },
       ],
-    });
+    }).lean();
     const indModulos = modSubs.map(ms => ms.moduleSlug);
 
     const todos = [...new Set([...planModulos, ...indModulos])];
+
+    cache.set(cacheKey, { data: todos, ts: Date.now() });
     return todos;
   } catch {
     return [];
+  }
+}
+
+function invalidateCache(adegaId) {
+  if (adegaId) {
+    cache.delete(`modulos_${adegaId}`);
   }
 }
 
@@ -85,4 +103,4 @@ function moduleAccess(...modulos) {
   };
 }
 
-module.exports = { moduleAccess, getModulosLiberados, MODULOS, MODULO_ROTAS };
+module.exports = { moduleAccess, getModulosLiberados, invalidateCache, MODULOS, MODULO_ROTAS };

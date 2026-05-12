@@ -5,6 +5,7 @@ const Payment = require('../models/Payment');
 const paymentService = require('../services/paymentService');
 const { authenticateAPI, authorize, authenticateView } = require('../middlewares/authMiddleware');
 const { tenantMiddleware } = require('../middlewares/tenantMiddleware');
+const { invalidateCache } = require('../middlewares/moduleMiddleware');
 const logger = require('../utils/logger');
 
 const router = Router();
@@ -26,11 +27,12 @@ router.get('/planos', async (req, res) => {
 
 router.post('/subscriptions/selecionar', authenticateAPI, tenantMiddleware, async (req, res) => {
   try {
-    const { planId, ciclo } = req.body;
+    const { planId, ciclo, gateway } = req.body;
     const plan = await Plan.findById(planId);
     if (!plan) return res.status(404).json({ error: 'Plano nao encontrado' });
 
     const valor = ciclo === 'anual' ? plan.precoAnual : plan.precoMensal;
+    const metodoPagamento = gateway || 'pix';
 
     let sub = await Subscription.findOne({ adegaId: req.adegaId, status: { $in: ['ativo', 'trial'] } });
     const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -53,21 +55,36 @@ router.post('/subscriptions/selecionar', authenticateAPI, tenantMiddleware, asyn
       });
     }
 
+    invalidateCache(req.adegaId);
+
     if (valor === 0) {
       return res.json({ redirect: '/admin', sub: { _id: sub._id, status: 'ativo' } });
     }
 
-    const pagamento = await paymentService.criarPagamento({
-      adegaId: req.adegaId,
-      subscriptionId: sub._id,
-      planId: plan._id,
-      valor,
-      ciclo,
-      descricao: `Plano ${plan.nome} - ${ciclo === 'anual' ? 'Anual' : 'Mensal'}`,
-      pagador: { email: req.user.email, nome: req.user.nome },
-    });
+    let pagamento;
+    if (metodoPagamento === 'card') {
+      pagamento = await paymentService.criarPagamentoCartao({
+        adegaId: req.adegaId,
+        subscriptionId: sub._id,
+        planId: plan._id,
+        valor,
+        descricao: `Plano ${plan.nome} - ${ciclo === 'anual' ? 'Anual' : 'Mensal'}`,
+        pagador: { email: req.user.email, nome: req.user.nome },
+        successUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/admin/planos?success=1`,
+        cancelUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/admin/planos?canceled=1`,
+      });
+    } else {
+      pagamento = await paymentService.criarPagamentoPix({
+        adegaId: req.adegaId,
+        subscriptionId: sub._id,
+        planId: plan._id,
+        valor,
+        descricao: `Plano ${plan.nome} - ${ciclo === 'anual' ? 'Anual' : 'Mensal'}`,
+        pagador: { email: req.user.email, nome: req.user.nome },
+      });
+    }
 
-    res.json({ redirect: '/admin', pagamento, sub: { _id: sub._id, status: sub.status } });
+    res.json({ redirect: '/admin/planos', pagamento, sub: { _id: sub._id, status: sub.status } });
   } catch (err) {
     logger.error(`Erro ao selecionar plano: ${err.message}`);
     res.status(500).json({ error: err.message });
@@ -81,6 +98,7 @@ router.post('/subscriptions/cancelar', authenticateAPI, tenantMiddleware, async 
     sub.status = 'cancelado';
     sub.canceledAt = new Date();
     await sub.save();
+    invalidateCache(req.adegaId);
     res.json({ message: 'Assinatura cancelada' });
   } catch (err) {
     res.status(500).json({ error: err.message });

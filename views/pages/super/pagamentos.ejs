@@ -1,0 +1,37 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <h4 class="mb-4"><i class="bi bi-credit-card"></i> Pagamentos</h4>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="list-group">
+        <a href="/admin/super" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/admin/super/configuracoes" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuracoes</a>
+        <a href="/admin/super/adegas" class="list-group-item list-group-item-action"><i class="bi bi-shop"></i> Adegas</a>
+        <a href="/admin/super/usuarios" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="/admin/super/planos" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Planos</a>
+        <a href="/admin/super/modulos" class="list-group-item list-group-item-action"><i class="bi bi-puzzle"></i> Modulos</a>
+        <a href="/admin/super/pagamentos" class="list-group-item list-group-item-action active"><i class="bi bi-credit-card"></i> Pagamentos</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0">Historico de Pagamentos</h6></div>
+        <div class="card-body p-0">
+          <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Adega</th><th>Valor</th><th>Gateway</th><th>Metodo</th><th>Status</th><th>Ciclo</th><th>Data</th></tr></thead><tbody id="listaPagamentos"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+api('/api/super/pagamentos').then(pagamentos => {
+  const tbody = document.getElementById('listaPagamentos');
+  pagamentos.forEach(p => {
+    tbody.innerHTML += '<tr><td>' + (p.adegaId?.nome || '-') + '</td><td>R$ ' + p.valor.toFixed(2).replace('.',',') + '</td><td>' + p.gateway + '</td><td>' + (p.metodo || '-') + '</td><td><span class="badge bg-' + (p.status === 'aprovado' ? 'success' : p.status === 'pendente' ? 'warning' : 'danger') + '">' + p.status + '</span></td><td>' + (p.ciclo || '-') + '</td><td>' + new Date(p.createdAt).toLocaleDateString('pt-BR') + '</td></tr>';
+  });
+});
+</script>
+<%- include('../../partials/footer') %>

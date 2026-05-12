@@ -15,8 +15,8 @@ const authenticateAPI = async (req, res, next) => {
       return res.status(401).json({ error: 'Token nao fornecido' });
     }
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, jwtConfig.secret);
-    const user = await User.findById(decoded.id).populate('adegaId');
+    const decoded = jwt.verify(token, jwtConfig.secret, { algorithms: ['HS256'] });
+    const user = await User.findById(decoded.id);
     if (!user || !user.ativo) {
       return res.status(401).json({ error: 'Usuario invalido' });
     }

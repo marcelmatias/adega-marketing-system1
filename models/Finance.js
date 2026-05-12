@@ -13,4 +13,8 @@ const financeSchema = new mongoose.Schema({
   registradoPor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
+financeSchema.index({ adegaId: 1, status: 1, data: 1 });
+financeSchema.index({ adegaId: 1, categoria: 1 });
+financeSchema.index({ adegaId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Finance', financeSchema);

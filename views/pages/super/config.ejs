@@ -1,0 +1,260 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <h4 class="mb-4"><i class="bi bi-gear"></i> Configuracoes do Sistema</h4>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="list-group">
+        <a href="/admin/super" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/admin/super/configuracoes" class="list-group-item list-group-item-action active"><i class="bi bi-gear"></i> Configuracoes</a>
+        <a href="/admin/super/adegas" class="list-group-item list-group-item-action"><i class="bi bi-shop"></i> Adegas</a>
+        <a href="/admin/super/usuarios" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="/admin/super/planos" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Planos</a>
+        <a href="/admin/super/modulos" class="list-group-item list-group-item-action"><i class="bi bi-puzzle"></i> Modulos</a>
+        <a href="/admin/super/pagamentos" class="list-group-item list-group-item-action"><i class="bi bi-credit-card"></i> Pagamentos</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0">Variaveis de Ambiente (salvas no banco)</h6></div>
+        <div class="card-body">
+          <form id="configForm">
+            <h6 class="text-muted mb-3">Sistema</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">URL Base</label>
+                <input type="url" class="form-control" name="baseUrl" placeholder="https://seudominio.com">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Nome do Sistema</label>
+                <input type="text" class="form-control" name="systemName" placeholder="Rei da Adega">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Asaas (PIX)</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-8">
+                <label class="form-label">API Key</label>
+                <input type="password" class="form-control" name="asaasApiKey" placeholder="suachave_asaas">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Ambiente</label>
+                <select class="form-select" name="asaasEnvironment">
+                  <option value="sandbox">Sandbox</option>
+                  <option value="production">Producao</option>
+                </select>
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Stripe (Cartao de Credito)</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Secret Key</label>
+                <input type="password" class="form-control" name="stripeSecretKey" placeholder="sk_live_...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Publishable Key</label>
+                <input type="text" class="form-control" name="stripePublishableKey" placeholder="pk_live_...">
+              </div>
+              <div class="col-md-6 mt-3">
+                <label class="form-label">Webhook Secret</label>
+                <input type="password" class="form-control" name="stripeWebhookSecret" placeholder="whsec_...">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">YouTube API (credenciais globais)</h6>
+            <p class="text-muted small">Usado como fallback quando a adega nao tem suas proprias credenciais.</p>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Client ID</label>
+                <input type="text" class="form-control" name="youtubeClientId" placeholder="...apps.googleusercontent.com">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Client Secret</label>
+                <input type="password" class="form-control" name="youtubeClientSecret">
+              </div>
+              <div class="col-md-6 mt-3">
+                <label class="form-label">API Key</label>
+                <input type="text" class="form-control" name="youtubeApiKey" placeholder="AIza...">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Canva API (credenciais globais)</h6>
+            <p class="text-muted small">Usado como fallback quando a adega nao tem suas proprias credenciais.</p>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">API Key</label>
+                <input type="text" class="form-control" name="canvaApiKey">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">API Secret</label>
+                <input type="password" class="form-control" name="canvaApiSecret">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Instagram / Facebook Graph API (credenciais globais)</h6>
+            <p class="text-muted small">Usado como fallback quando a adega nao tem configurado seu proprio Facebook App.</p>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Facebook App ID</label>
+                <input type="text" class="form-control" name="instagramFacebookAppId">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Facebook App Secret</label>
+                <input type="password" class="form-control" name="instagramFacebookAppSecret">
+              </div>
+              <div class="col-12 mt-2">
+                <small class="text-muted">Redirect URI: <code id="igRedirectUri" class="small"></code></small>
+              </div>
+            </div>
+
+            <div class="card border-warning mb-4">
+              <div class="card-body py-2">
+                <div class="d-flex align-items-center gap-3">
+                  <i class="bi bi-arrow-repeat text-warning" style="font-size:1.5rem"></i>
+                  <div class="flex-grow-1">
+                    <small class="text-muted">Sincronizar credenciais acima com todas as adegas que ainda nao configuraram suas proprias credenciais.</small>
+                  </div>
+                  <button type="button" class="btn btn-outline-warning btn-sm" id="btnSyncApps"><i class="bi bi-cloud-upload"></i> Sincronizar</button>
+                  <span id="syncStatus" class="ms-1 small"></span>
+                </div>
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Google OAuth (Login)</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Client ID</label>
+                <input type="text" class="form-control" name="googleClientId" placeholder="...apps.googleusercontent.com">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Client Secret</label>
+                <input type="password" class="form-control" name="googleClientSecret">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Facebook OAuth (Login)</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">App ID</label>
+                <input type="text" class="form-control" name="facebookAppId">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">App Secret</label>
+                <input type="password" class="form-control" name="facebookAppSecret">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">SMTP (Email)</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <label class="form-label">Host</label>
+                <input type="text" class="form-control" name="smtpHost" placeholder="smtp.sendgrid.net">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Porta</label>
+                <input type="number" class="form-control" name="smtpPort" placeholder="587">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Usuario</label>
+                <input type="text" class="form-control" name="smtpUser">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Senha</label>
+                <input type="password" class="form-control" name="smtpPass">
+              </div>
+              <div class="col-md-4 mt-3">
+                <label class="form-label">Email de envio</label>
+                <input type="email" class="form-control" name="emailFrom" placeholder="noreply@seudominio.com">
+              </div>
+            </div>
+
+            <h6 class="text-muted mb-3">Cadastro</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <div class="form-check form-switch mt-4">
+                  <input class="form-check-input" type="checkbox" role="switch" id="permitirCadastro" name="permitirCadastro" value="true">
+                  <label class="form-check-label" for="permitirCadastro">Permitir cadastro</label>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Dias de Trial</label>
+                <input type="number" class="form-control" name="trialDays" min="0" max="90">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-danger"><i class="bi bi-check-lg"></i> Salvar</button>
+            <span id="configStatus" class="ms-2"></span>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function carregarConfig() {
+  const config = await api('/api/super/config');
+  Object.keys(config).forEach(key => {
+    const input = document.querySelector(`[name="${key}"]`);
+    if (input) {
+      if (input.type === 'checkbox') {
+        input.checked = config[key] === true || config[key] === 'true';
+      } else {
+        input.value = config[key] || '';
+      }
+    }
+  });
+}
+
+document.getElementById('configForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  const status = document.getElementById('configStatus');
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Salvando...';
+  const data = Object.fromEntries(new FormData(this).entries());
+  // Convert checkboxes
+  data.permitirCadastro = !!this.querySelector('[name="permitirCadastro"]').checked;
+  data.manutencao = !!this.querySelector('[name="manutencao"]')?.checked;
+  try {
+    await api('/api/super/config', { method: 'PUT', body: JSON.stringify(data) });
+    status.innerHTML = '<span class="text-success">Salvo!</span>';
+  } catch (err) {
+    status.innerHTML = '<span class="text-danger">Erro: ' + err.message + '</span>';
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => status.innerHTML = '', 3000);
+  }
+});
+
+carregarConfig();
+
+// Display Instagram redirect URI
+const baseUrl = document.querySelector('[name="baseUrl"]')?.value || window.location.origin;
+document.getElementById('igRedirectUri').textContent = baseUrl + '/auth/instagram/callback';
+document.querySelector('[name="baseUrl"]').addEventListener('input', function() {
+  document.getElementById('igRedirectUri').textContent = (this.value || window.location.origin) + '/auth/instagram/callback';
+});
+
+// Sync apps to all adegas
+document.getElementById('btnSyncApps').addEventListener('click', async function() {
+  if (!confirm('Sincronizar credenciais de YouTube, Canva e Instagram com todas as adegas?\n\nIsso preenchera apenas campos vazios em cada adega.')) return;
+  const btn = this;
+  const status = document.getElementById('syncStatus');
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sincronizando...';
+  try {
+    const result = await api('/api/super/sync-apps', { method: 'POST' });
+    status.innerHTML = '<span class="text-success">' + result.message + ' (' + result.adegasAtualizadas + ' adegas)</span>';
+  } catch (err) {
+    status.innerHTML = '<span class="text-danger">Erro: ' + err.message + '</span>';
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => status.innerHTML = '', 5000);
+  }
+});
+</script>
+<%- include('../../partials/footer') %>

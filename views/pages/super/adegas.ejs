@@ -1,0 +1,56 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <h4 class="mb-4"><i class="bi bi-shop"></i> Adegas</h4>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="list-group">
+        <a href="/admin/super" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/admin/super/configuracoes" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuracoes</a>
+        <a href="/admin/super/adegas" class="list-group-item list-group-item-action active"><i class="bi bi-shop"></i> Adegas</a>
+        <a href="/admin/super/usuarios" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="/admin/super/planos" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Planos</a>
+        <a href="/admin/super/modulos" class="list-group-item list-group-item-action"><i class="bi bi-puzzle"></i> Modulos</a>
+        <a href="/admin/super/pagamentos" class="list-group-item list-group-item-action"><i class="bi bi-credit-card"></i> Pagamentos</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0">Todas as Adegas</h6></div>
+        <div class="card-body p-0">
+          <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nome</th><th>Email</th><th>WhatsApp</th><th>Cidade</th><th>Ativo</th><th>Criada em</th><th>Acoes</th></tr></thead><tbody id="listaAdegas"></tbody></table></div>
+        </div>
+      </div>
+      <!-- Detalhe adega -->
+      <div class="card border-0 shadow-sm mt-4 d-none" id="cardDetalhe">
+        <div class="card-header bg-white d-flex justify-content-between"><h6 class="mb-0">Detalhe da Adega</h6><button class="btn-close" onclick="document.getElementById('cardDetalhe').classList.add('d-none')"></button></div>
+        <div class="card-body" id="detalheBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+api('/api/super/adegas').then(adegas => {
+  const tbody = document.getElementById('listaAdegas');
+  adegas.forEach(a => {
+    tbody.innerHTML += '<tr><td>' + a.nome + '</td><td>' + (a.email || '-') + '</td><td>' + (a.whatsapp || '-') + '</td><td>' + (a.endereco?.cidade || '-') + '</td><td><span class="badge bg-' + (a.ativo ? 'success' : 'secondary') + '">' + (a.ativo ? 'Sim' : 'Nao') + '</span></td><td>' + new Date(a.createdAt).toLocaleDateString('pt-BR') + '</td><td><button class="btn btn-sm btn-outline-info" onclick="verAdega(\'' + a._id + '\')"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-outline-' + (a.ativo ? 'warning' : 'success') + '" onclick="toggleAdega(\'' + a._id + '\', this)"><i class="bi bi-' + (a.ativo ? 'pause' : 'play') + '"></i></button></td></tr>';
+  });
+});
+
+async function verAdega(id) {
+  const data = await api('/api/super/adegas/' + id);
+  const body = document.getElementById('detalheBody');
+  body.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+  document.getElementById('cardDetalhe').classList.remove('d-none');
+}
+
+async function toggleAdega(id, btn) {
+  const data = await api('/api/super/adegas/' + id + '/toggle', { method: 'POST' });
+  btn.innerHTML = '<i class="bi bi-' + (data.ativo ? 'pause' : 'play') + '"></i>';
+  btn.className = 'btn btn-sm btn-outline-' + (data.ativo ? 'warning' : 'success');
+  location.reload();
+}
+</script>
+<%- include('../../partials/footer') %>

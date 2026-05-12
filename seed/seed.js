@@ -109,6 +109,15 @@ async function seed() {
     await User.create({
       adegaId: adega._id, nome: 'Visualizador', email: 'viewer@adega.com', senha: '123456', role: 'viewer',
     });
+    await User.create({
+      nome: 'Super Admin', email: 'super@reidaadega.com', senha: 'admin123', role: 'superadmin',
+    });
+    logger.info('Super admin criado (super@reidaadega.com / admin123)');
+
+    // Garante config padrao no banco
+    const SystemConfig = require('../models/SystemConfig');
+    await SystemConfig.deleteMany({});
+    await SystemConfig.create({ baseUrl: 'http://localhost:3000', systemName: 'Rei da Adega', trialDays: 7, asaasEnvironment: 'sandbox' });
     logger.info('Usuarios criados (admin: admin@adega.com / 123456)');
 
     const produtos = await Product.create(

@@ -25,6 +25,10 @@ productSchema.virtual('margem').get(function () {
   return ((this.preco - this.custo) / this.preco * 100).toFixed(1);
 });
 
+productSchema.index({ adegaId: 1, ativo: 1 });
+productSchema.index({ adegaId: 1, categoria: 1, ativo: 1 });
+productSchema.index({ adegaId: 1, nome: 1 });
+
 productSchema.set('toJSON', { virtuals: true });
 
 module.exports = mongoose.model('Product', productSchema);

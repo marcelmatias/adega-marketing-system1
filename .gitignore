@@ -1,1 +1,8 @@
-/.env.example
+node_modules/
+.env
+logs/
+uploads/*
+!uploads/.gitkeep
+*.log
+.DS_Store
+Thumbs.db

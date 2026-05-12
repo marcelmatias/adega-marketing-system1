@@ -1,0 +1,51 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-shield-lock"></i> Super Admin</h4>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><h5 id="totalAdegas">-</h5><small class="text-muted">Adegas</small></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><h5 id="totalUsuarios">-</h5><small class="text-muted">Usuarios</small></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><h5 id="totalPlanos">-</h5><small class="text-muted">Planos</small></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><h5 id="totalPagamentos">-</h5><small class="text-muted">Pagamentos</small></div></div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="list-group">
+        <a href="/admin/super" class="list-group-item list-group-item-action active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/admin/super/configuracoes" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuracoes</a>
+        <a href="/admin/super/adegas" class="list-group-item list-group-item-action"><i class="bi bi-shop"></i> Adegas</a>
+        <a href="/admin/super/usuarios" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="/admin/super/planos" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Planos</a>
+        <a href="/admin/super/modulos" class="list-group-item list-group-item-action"><i class="bi bi-puzzle"></i> Modulos</a>
+        <a href="/admin/super/pagamentos" class="list-group-item list-group-item-action"><i class="bi bi-credit-card"></i> Pagamentos</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0">Pagamentos Recentes</h6></div>
+        <div class="card-body p-0">
+          <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Adega</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead><tbody id="pagamentosRecentes"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+api('/api/super/dashboard').then(d => {
+  document.getElementById('totalAdegas').textContent = d.totalAdegas;
+  document.getElementById('totalUsuarios').textContent = d.totalUsuarios;
+  document.getElementById('totalPlanos').textContent = d.totalPlanos;
+  document.getElementById('totalPagamentos').textContent = d.totalPagamentos;
+  const tbody = document.getElementById('pagamentosRecentes');
+  (d.pagamentosRecentes || []).forEach(p => {
+    tbody.innerHTML += '<tr><td>' + (p.adegaId?.nome || '-') + '</td><td>R$ ' + p.valor.toFixed(2).replace('.',',') + '</td><td><span class="badge bg-' + (p.status === 'aprovado' ? 'success' : 'warning') + '">' + p.status + '</span></td><td>' + new Date(p.createdAt).toLocaleDateString('pt-BR') + '</td></tr>';
+  });
+});
+</script>
+<%- include('../../partials/footer') %>

@@ -17,7 +17,7 @@ exports.exibir = async (req, res) => {
 
     const success = req.query.success;
     const error = req.query.error;
-    const detail = req.query.detail;
+    const detail = req.query.detail ? String(req.query.detail).replace(/[<>&"']/g, '') : '';
 
     let flashMsg = null;
     if (success === 'oauth_ok') flashMsg = { type: 'success', text: 'YouTube conectado com sucesso! O refresh token foi salvo.' };

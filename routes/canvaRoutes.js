@@ -1,24 +1,39 @@
 const { Router } = require('express');
 const canvaService = require('../services/canvaService');
-const Adega = require('../models/Adega');
 const { authenticateAPI, authorize } = require('../middlewares/authMiddleware');
 
 const router = Router();
 
 router.use(authenticateAPI);
 
-async function getCanvaConfig(req) {
+// Middleware to load canva config once per request (falls back to system-level)
+router.use(async (req, res, next) => {
+  if (!req.adegaId) return next();
   try {
-    const adega = await Adega.findById(req.adegaId);
-    return adega ? adega.canvaConfig : null;
-  } catch { return null; }
-}
+    const Adega = require('../models/Adega');
+    const configLoader = require('../services/configLoader');
+    const adega = await Adega.findById(req.adegaId).select('canvaConfig').lean();
+    const cfg = adega ? adega.canvaConfig : { mock: true };
+    // Fallback to system-level credentials if adega has none
+    if (!cfg.apiKey && !cfg.apiSecret) {
+      const sys = configLoader.getConfig();
+      if (sys?.canvaApiKey || sys?.canvaApiSecret) {
+        cfg.apiKey = cfg.apiKey || sys.canvaApiKey;
+        cfg.apiSecret = cfg.apiSecret || sys.canvaApiSecret;
+        if (sys.canvaApiKey) cfg.mock = false;
+      }
+    }
+    req.canvaConfig = cfg;
+  } catch {
+    req.canvaConfig = { mock: true };
+  }
+  next();
+});
 
 router.post('/criar-design', authorize('admin'), async (req, res) => {
   try {
     const { titulo, tipo } = req.body;
-    const cfg = await getCanvaConfig(req);
-    const design = await canvaService.criarDesign(titulo, tipo || 'video', cfg);
+    const design = await canvaService.criarDesign(titulo, tipo || 'video', req.canvaConfig);
     res.json({ design });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -27,19 +42,18 @@ router.post('/criar-design', authorize('admin'), async (req, res) => {
 
 router.post('/exportar/:designId', authorize('admin'), async (req, res) => {
   try {
-    const cfg = await getCanvaConfig(req);
-    const result = await canvaService.exportarDesign(req.params.designId, req.body.formato || 'mp4', cfg);
-    res.json({ result });
+    const cfg = req.canvaConfig;
+    const resultado = await canvaService.exportarDesign(req.params.designId, cfg);
+    res.json({ resultado });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.get('/designs', authorize('admin'), async (req, res) => {
+router.get('/:designId', async (req, res) => {
   try {
-    const cfg = await getCanvaConfig(req);
-    const designs = await canvaService.listarDesigns(req.query.pastaId, cfg);
-    res.json({ designs: designs.designs || [], total: designs.total || 0, mock: cfg?.mock !== false });
+    const design = await canvaService.obterDesign(req.params.designId, req.canvaConfig);
+    res.json({ design });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

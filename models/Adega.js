@@ -38,6 +38,11 @@ const adegaSchema = new mongoose.Schema({
     baseUrl: { type: String, default: '' },
   },
   ativo: { type: Boolean, default: true },
+  asaasCustomerId: { type: String, default: '' },
 }, { timestamps: true });
+
+adegaSchema.index({ nome: 1 });
+adegaSchema.index({ ativo: 1 });
+adegaSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Adega', adegaSchema);

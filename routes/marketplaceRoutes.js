@@ -5,7 +5,9 @@ const Subscription = require('../models/Subscription');
 const ModuleSubscription = require('../models/ModuleSubscription');
 const Payment = require('../models/Payment');
 const paymentService = require('../services/paymentService');
-const { authenticateAPI, tenantMiddleware } = require('../middlewares/authMiddleware');
+const { authenticateAPI } = require('../middlewares/authMiddleware');
+const { tenantMiddleware } = require('../middlewares/tenantMiddleware');
+const { invalidateCache } = require('../middlewares/moduleMiddleware');
 const { getModulosLiberados } = require('../middlewares/moduleMiddleware');
 const logger = require('../utils/logger');
 
@@ -37,11 +39,12 @@ router.get('/marketplace', authenticateAPI, tenantMiddleware, async (req, res) =
 
 router.post('/marketplace/assinar-modulo', authenticateAPI, tenantMiddleware, async (req, res) => {
   try {
-    const { moduleSlug, ciclo } = req.body;
+    const { moduleSlug, ciclo, gateway } = req.body;
     const mod = await Module.findOne({ slug: moduleSlug, ativo: true });
     if (!mod) return res.status(404).json({ error: 'Modulo nao encontrado' });
 
     const preco = ciclo === 'anual' ? mod.precoAnual : mod.precoMensal;
+    const metodoPagamento = gateway || 'pix';
 
     // Check if already active
     const existente = await ModuleSubscription.findOne({ adegaId: req.adegaId, moduleSlug, status: 'ativo' });
@@ -56,23 +59,38 @@ router.post('/marketplace/assinar-modulo', authenticateAPI, tenantMiddleware, as
       expiresAt: preco > 0 ? new Date(Date.now() + (ciclo === 'anual' ? 365 : 30) * 24 * 60 * 60 * 1000) : null,
     });
 
+    invalidateCache(req.adegaId);
+
     if (preco === 0) {
       return res.json({ redirect: '/admin/planos', modSub: { ...modSub.toObject(), status: 'ativo' } });
     }
 
-    const pagamento = await paymentService.criarPagamento({
-      adegaId: req.adegaId,
-      valor: preco,
-      ciclo,
-      descricao: `Modulo ${mod.nome} - ${ciclo === 'anual' ? 'Anual' : 'Mensal'}`,
-      pagador: { email: req.user.email, nome: req.user.nome },
-      metadata: { moduleSlug, tipo: 'modulo-avulso' },
-    });
+    let pagamento;
+    if (metodoPagamento === 'card') {
+      pagamento = await paymentService.criarPagamentoCartao({
+        adegaId: req.adegaId,
+        valor: preco,
+        descricao: `Modulo ${mod.nome} - ${ciclo === 'anual' ? 'Anual' : 'Mensal'}`,
+        pagador: { email: req.user.email, nome: req.user.nome },
+        metadata: { moduleSlug, tipo: 'modulo-avulso' },
+        successUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/admin/planos?success=1`,
+        cancelUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/admin/planos?canceled=1`,
+      });
+    } else {
+      pagamento = await paymentService.criarPagamentoPix({
+        adegaId: req.adegaId,
+        valor: preco,
+        descricao: `Modulo ${mod.nome} - ${ciclo === 'anual' ? 'Anual' : 'Mensal'}`,
+        pagador: { email: req.user.email, nome: req.user.nome },
+        metadata: { moduleSlug, tipo: 'modulo-avulso' },
+      });
+    }
 
     if (pagamento.status === 'aprovado') {
       modSub.status = 'ativo';
       modSub.paymentId = pagamento.id;
       await modSub.save();
+      invalidateCache(req.adegaId);
     }
 
     res.json({ redirect: '/admin/planos', pagamento, modSub: { _id: modSub._id, status: modSub.status } });
@@ -90,6 +108,7 @@ router.post('/marketplace/cancelar-modulo', authenticateAPI, tenantMiddleware, a
     modSub.status = 'cancelado';
     modSub.canceledAt = new Date();
     await modSub.save();
+    invalidateCache(req.adegaId);
     res.json({ message: `Modulo ${moduleSlug} cancelado` });
   } catch (err) {
     res.status(500).json({ error: err.message });

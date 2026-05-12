@@ -1,0 +1,41 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <h4 class="mb-4"><i class="bi bi-puzzle"></i> Modulos</h4>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="list-group">
+        <a href="/admin/super" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/admin/super/configuracoes" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuracoes</a>
+        <a href="/admin/super/adegas" class="list-group-item list-group-item-action"><i class="bi bi-shop"></i> Adegas</a>
+        <a href="/admin/super/usuarios" class="list-group-item list-group-item-action"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="/admin/super/planos" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Planos</a>
+        <a href="/admin/super/modulos" class="list-group-item list-group-item-action active"><i class="bi bi-puzzle"></i> Modulos</a>
+        <a href="/admin/super/pagamentos" class="list-group-item list-group-item-action"><i class="bi bi-credit-card"></i> Pagamentos</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Modulos do Marketplace</h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nome</th><th>Slug</th><th>Preco Mensal</th><th>Preco Anual</th><th>Icone</th><th>Ordem</th><th>Ativo</th></tr></thead><tbody id="listaModulos"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function carregarModulos() {
+  const data = await api('/api/marketplace');
+  const tbody = document.getElementById('listaModulos');
+  (data.modulos || []).forEach(m => {
+    tbody.innerHTML += '<tr><td>' + m.nome + '</td><td>' + m.slug + '</td><td>R$ ' + m.precoMensal.toFixed(2).replace('.',',') + '</td><td>R$ ' + (m.precoAnual || 0).toFixed(2).replace('.',',') + '</td><td><i class="bi ' + m.icone + '"></i></td><td>' + m.ordem + '</td><td><span class="badge bg-' + (m.ativo ? 'success' : 'secondary') + '">' + (m.ativo ? 'Sim' : 'Nao') + '</span></td></tr>';
+  });
+}
+carregarModulos();
+</script>
+<%- include('../../partials/footer') %>

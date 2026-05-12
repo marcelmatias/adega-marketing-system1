@@ -32,15 +32,24 @@ exports.status = async (req, res) => {
 
 exports.listarPosts = async (req, res) => {
   try {
-    const posts = await InstagramPost.find({ adegaId: req.adegaId })
-      .populate('campanhaId', 'nome')
-      .populate('produtoId', 'nome')
-      .sort({ createdAt: -1 });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
 
-    const adega = await Adega.findById(req.adegaId);
+    const [posts, total] = await Promise.all([
+      InstagramPost.find({ adegaId: req.adegaId })
+        .populate('campanhaId', 'nome')
+        .populate('produtoId', 'nome')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      InstagramPost.countDocuments({ adegaId: req.adegaId }),
+    ]);
+
+    const adega = await Adega.findById(req.adegaId).select('instagramConfig').lean();
     const postsApi = await instagramService.listarPosts(adega?.instagramConfig);
 
-    res.json({ posts, postsApi });
+    res.json({ posts, total, page, pages: Math.ceil(total / limit), postsApi });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

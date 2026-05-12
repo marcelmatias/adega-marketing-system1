@@ -13,4 +13,7 @@ const instagramPostSchema = new mongoose.Schema({
   publicadoEm: { type: Date },
 }, { timestamps: true });
 
+instagramPostSchema.index({ adegaId: 1, createdAt: -1 });
+instagramPostSchema.index({ adegaId: 1, status: 1 });
+
 module.exports = mongoose.model('InstagramPost', instagramPostSchema);

@@ -20,4 +20,6 @@ const planSchema = new mongoose.Schema({
   ativo: { type: Boolean, default: true },
 }, { timestamps: true });
 
+planSchema.index({ ativo: 1, ordem: 1 });
+
 module.exports = mongoose.model('Plan', planSchema);

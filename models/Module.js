@@ -13,4 +13,6 @@ const moduleSchema = new mongoose.Schema({
   ativo: { type: Boolean, default: true },
 }, { timestamps: true });
 
+moduleSchema.index({ ativo: 1, ordem: 1 });
+
 module.exports = mongoose.model('Module', moduleSchema);

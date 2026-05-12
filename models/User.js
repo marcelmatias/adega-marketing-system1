@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  adegaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Adega', required: true, index: true },
+  adegaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Adega', index: true },
   nome: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   senha: { type: String, required: true, minlength: 6 },
-  role: { type: String, enum: ['admin', 'staff', 'viewer'], default: 'staff' },
+  role: { type: String, enum: ['superadmin', 'admin', 'staff', 'viewer'], default: 'staff' },
   socialId: { type: String, default: '' },
   socialProvider: { type: String, enum: ['', 'google', 'facebook'], default: '' },
   ativo: { type: Boolean, default: true },
@@ -27,5 +27,8 @@ userSchema.methods.toJSON = function () {
   delete obj.senha;
   return obj;
 };
+
+userSchema.index({ adegaId: 1, role: 1 });
+userSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,5 +1,6 @@
 const Finance = require('../models/Finance');
 const logger = require('../utils/logger');
+const { exportFinanceiroCSV, exportFinanceiroPDF } = require('../services/exportService');
 
 exports.listar = async (req, res) => {
   try {
@@ -63,26 +64,107 @@ exports.remover = async (req, res) => {
 exports.fluxoCaixa = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const filter = { adegaId: req.adegaId, status: 'pago' };
+    const match = { adegaId: req.adegaId, status: 'pago' };
+    if (startDate || endDate) {
+      match.data = {};
+      if (startDate) match.data.$gte = new Date(startDate);
+      if (endDate) match.data.$lte = new Date(endDate);
+    }
+
+    const [totals, byCategory] = await Promise.all([
+      Finance.aggregate([
+        { $match: match },
+        { $group: { _id: '$tipo', total: { $sum: '$valor' } } },
+      ]),
+      Finance.aggregate([
+        { $match: match },
+        { $group: { _id: { categoria: '$categoria', tipo: '$tipo' }, total: { $sum: '$valor' } } },
+      ]),
+    ]);
+
+    const receitas = totals.find(t => t._id === 'receita')?.total || 0;
+    const despesas = totals.find(t => t._id === 'despesa')?.total || 0;
+    const saldo = receitas - despesas;
+
+    const porCategoria = {};
+    byCategory.forEach(item => {
+      const cat = item._id.categoria;
+      if (!porCategoria[cat]) porCategoria[cat] = { receitas: 0, despesas: 0 };
+      if (item._id.tipo === 'receita') porCategoria[cat].receitas += item.total;
+      else porCategoria[cat].despesas += item.total;
+    });
+
+    res.json({ receitas, despesas, saldo, porCategoria });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.exportarCSV = async (req, res) => {
+  try {
+    const { tipo, categoria, status, startDate, endDate } = req.query;
+    const filter = { adegaId: req.adegaId };
+    if (tipo) filter.tipo = tipo;
+    if (categoria) filter.categoria = categoria;
+    if (status) filter.status = status;
     if (startDate || endDate) {
       filter.data = {};
       if (startDate) filter.data.$gte = new Date(startDate);
       if (endDate) filter.data.$lte = new Date(endDate);
     }
 
-    const registros = await Finance.find(filter);
-    const receitas = registros.filter(r => r.tipo === 'receita').reduce((s, r) => s + r.valor, 0);
-    const despesas = registros.filter(r => r.tipo === 'despesa').reduce((s, r) => s + r.valor, 0);
-    const saldo = receitas - despesas;
+    const registros = await Finance.find(filter).sort({ data: -1 }).lean();
+    const csv = exportFinanceiroCSV(registros);
+    const filename = `financeiro-${Date.now()}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send('\uFEFF' + csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-    const porCategoria = registros.reduce((acc, r) => {
-      if (!acc[r.categoria]) acc[r.categoria] = { receitas: 0, despesas: 0 };
-      if (r.tipo === 'receita') acc[r.categoria].receitas += r.valor;
-      else acc[r.categoria].despesas += r.valor;
-      return acc;
-    }, {});
+exports.exportarPDF = async (req, res) => {
+  try {
+    const { tipo, categoria, status, startDate, endDate } = req.query;
+    const filter = { adegaId: req.adegaId };
+    if (tipo) filter.tipo = tipo;
+    if (categoria) filter.categoria = categoria;
+    if (status) filter.status = status;
+    if (startDate || endDate) {
+      filter.data = {};
+      if (startDate) filter.data.$gte = new Date(startDate);
+      if (endDate) filter.data.$lte = new Date(endDate);
+    }
 
-    res.json({ receitas, despesas, saldo, porCategoria });
+    const registros = await Finance.find(filter).sort({ data: -1 }).lean();
+
+    const fluxoMatch = { adegaId: req.adegaId, status: 'pago' };
+    if (startDate || endDate) {
+      fluxoMatch.data = {};
+      if (startDate) fluxoMatch.data.$gte = new Date(startDate);
+      if (endDate) fluxoMatch.data.$lte = new Date(endDate);
+    }
+    const totals = await Finance.aggregate([
+      { $match: fluxoMatch },
+      { $group: { _id: '$tipo', total: { $sum: '$valor' } } },
+    ]);
+    const fluxo = {
+      receitas: totals.find(t => t._id === 'receita')?.total || 0,
+      despesas: totals.find(t => t._id === 'despesa')?.total || 0,
+      saldo: 0,
+    };
+    fluxo.saldo = fluxo.receitas - fluxo.despesas;
+
+    let subtitulo = '';
+    if (startDate) subtitulo += `De: ${new Date(startDate).toLocaleDateString('pt-BR')}`;
+    if (endDate) subtitulo += `${subtitulo ? ' ' : ''}Ate: ${new Date(endDate).toLocaleDateString('pt-BR')}`;
+
+    const pdf = await exportFinanceiroPDF(registros, fluxo, subtitulo);
+    const filename = `financeiro-${Date.now()}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(pdf);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -94,22 +176,38 @@ exports.relatorioMensal = async (req, res) => {
     const inicio = new Date(`${ano}-01-01`);
     const fim = new Date(`${ano}-12-31T23:59:59`);
 
-    const registros = await Finance.find({
+    const match = {
       adegaId: req.adegaId,
       status: 'pago',
       data: { $gte: inicio, $lte: fim },
-    });
+    };
 
-    const receitas = registros.filter(r => r.tipo === 'receita').reduce((s, r) => s + r.valor, 0);
-    const despesas = registros.filter(r => r.tipo === 'despesa').reduce((s, r) => s + r.valor, 0);
+    const [totals, monthly] = await Promise.all([
+      Finance.aggregate([
+        { $match: match },
+        { $group: { _id: '$tipo', total: { $sum: '$valor' } } },
+      ]),
+      Finance.aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: { mes: { $month: '$data' }, tipo: '$tipo' },
+            total: { $sum: '$valor' },
+          },
+        },
+      ]),
+    ]);
+
+    const receitas = totals.find(t => t._id === 'receita')?.total || 0;
+    const despesas = totals.find(t => t._id === 'despesa')?.total || 0;
     const lucroLiquido = receitas - despesas;
 
     const mensal = Array.from({ length: 12 }, (_, i) => {
-      const mesRegistros = registros.filter(r => new Date(r.data).getMonth() === i);
+      const mes = i + 1;
       return {
-        mes: i + 1,
-        receitas: mesRegistros.filter(r => r.tipo === 'receita').reduce((s, r) => s + r.valor, 0),
-        despesas: mesRegistros.filter(r => r.tipo === 'despesa').reduce((s, r) => s + r.valor, 0),
+        mes,
+        receitas: monthly.filter(m => m._id.mes === mes && m._id.tipo === 'receita').reduce((s, m) => s + m.total, 0),
+        despesas: monthly.filter(m => m._id.mes === mes && m._id.tipo === 'despesa').reduce((s, m) => s + m.total, 0),
       };
     });
 

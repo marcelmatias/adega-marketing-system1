@@ -10,7 +10,7 @@ class YouTubeService {
     this.refreshToken = '';
     this.oauth2Client = null;
     this.youtube = null;
-    this.redirectUri = `http://localhost:${process.env.PORT || 3010}/auth/youtube/callback`;
+    this.redirectUri = '';
   }
 
   setAdegaConfig(adegaConfig) {
@@ -31,14 +31,19 @@ class YouTubeService {
     this.youtube = google.youtube({ version: 'v3', auth: this.oauth2Client });
   }
 
-  getAuthUrl(session, adegaConfig) {
+  _getRedirectUri(baseUrl) {
+    return `${baseUrl || process.env.BASE_URL || 'http://localhost:3000'}/auth/youtube/callback`;
+  }
+
+  getAuthUrl(session, adegaConfig, baseUrl) {
     if (adegaConfig) this.setAdegaConfig(adegaConfig);
     if (!this.clientId || !this.clientSecret) {
       throw new Error('Client ID e Client Secret obrigatorios. Configure nas Configuracoes.');
     }
     const state = crypto.randomBytes(32).toString('hex');
     session.youtubeOAuthState = state;
-    const client = new google.auth.OAuth2(this.clientId, this.clientSecret, this.redirectUri);
+    const redirectUri = this._getRedirectUri(baseUrl);
+    const client = new google.auth.OAuth2(this.clientId, this.clientSecret, redirectUri);
     return client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
@@ -47,7 +52,7 @@ class YouTubeService {
     });
   }
 
-  async handleCallback(code, state, session) {
+  async handleCallback(code, state, session, baseUrl) {
     if (state !== session.youtubeOAuthState) {
       throw new Error('State mismatch. Possivel ataque CSRF.');
     }
@@ -55,7 +60,8 @@ class YouTubeService {
     if (!this.clientId || !this.clientSecret) {
       throw new Error('Client ID e Client Secret nao configurados.');
     }
-    const client = new google.auth.OAuth2(this.clientId, this.clientSecret, this.redirectUri);
+    const redirectUri = this._getRedirectUri(baseUrl);
+    const client = new google.auth.OAuth2(this.clientId, this.clientSecret, redirectUri);
     const { tokens } = await client.getToken(code);
     if (!tokens.refresh_token) {
       throw new Error('Nenhum refresh_token recebido. Use prompt=consent e access_type=offline.');

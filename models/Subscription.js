@@ -17,7 +17,8 @@ const subscriptionSchema = new mongoose.Schema({
   metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
 }, { timestamps: true });
 
-subscriptionSchema.index({ adegaId: 1, status: 1 });
+subscriptionSchema.index({ adegaId: 1, status: 1, createdAt: -1 });
+subscriptionSchema.index({ adegaId: 1, planId: 1 });
 subscriptionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Subscription', subscriptionSchema);

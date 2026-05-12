@@ -19,12 +19,23 @@ const router = Router();
 
 router.get('/youtube', async (req, res) => {
   try {
-    let adegaConfig = null;
+    let adega = null;
     if (req.session.user && req.session.user.adegaId) {
-      const adega = await Adega.findById(req.session.user.adegaId);
-      if (adega) adegaConfig = adega.youtubeConfig;
+      adega = await Adega.findById(req.session.user.adegaId);
     }
-    const url = youtubeService.getAuthUrl(req.session, adegaConfig);
+    let adegaConfig = adega ? { ...adega.youtubeConfig } : { mock: true };
+    // Fallback to system-level credentials
+    if (!adegaConfig.clientId && !adegaConfig.clientSecret) {
+      const configLoader = require('../services/configLoader');
+      const sys = configLoader.getConfig();
+      if (sys?.youtubeClientId || sys?.youtubeClientSecret) {
+        adegaConfig.clientId = adegaConfig.clientId || sys.youtubeClientId;
+        adegaConfig.clientSecret = adegaConfig.clientSecret || sys.youtubeClientSecret;
+        adegaConfig.apiKey = adegaConfig.apiKey || sys.youtubeApiKey;
+      }
+    }
+    const baseUrl = adega ? getBaseUrl(req, adega) : undefined;
+    const url = youtubeService.getAuthUrl(req.session, adegaConfig, baseUrl);
     res.redirect(url);
   } catch (err) {
     logger.error(`Erro ao iniciar OAuth YouTube: ${err.message}`);
@@ -43,8 +54,6 @@ router.get('/youtube/callback', async (req, res) => {
       return res.redirect('/admin/configuracoes?error=oauth_invalido');
     }
 
-    const tokens = await youtubeService.handleCallback(code, state, req.session);
-
     if (!req.session.user || !req.session.user.adegaId) {
       return res.redirect('/admin/configuracoes?error=oauth_sessao');
     }
@@ -53,6 +62,9 @@ router.get('/youtube/callback', async (req, res) => {
     if (!adega) {
       return res.redirect('/admin/configuracoes?error=oauth_adega_nao_encontrada');
     }
+
+    const baseUrl = getBaseUrl(req, adega);
+    const tokens = await youtubeService.handleCallback(code, state, req.session, baseUrl);
 
     adega.youtubeConfig.refreshToken = tokens.refresh_token;
     adega.youtubeConfig.mock = false;

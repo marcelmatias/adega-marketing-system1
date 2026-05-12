@@ -96,6 +96,17 @@
           </select>
         </div>
         <div id="planoPreco" class="text-center h5 text-danger mb-0"></div>
+        <hr>
+        <label class="form-label">Forma de Pagamento</label>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-outline-primary flex-fill gateway-opt" data-gateway="pix">
+            <i class="bi bi-qr-code"></i> PIX
+          </button>
+          <button class="btn btn-outline-dark flex-fill gateway-opt" data-gateway="card">
+            <i class="bi bi-credit-card"></i> Cartao
+          </button>
+        </div>
+        <input type="hidden" id="planoGateway" value="pix">
       </div>
       <div class="modal-footer">
         <button class="btn btn-danger w-100" id="btnConfirmarPlano"><i class="bi bi-cart-check"></i> Confirmar</button>
@@ -112,6 +123,17 @@
       <div class="modal-body">
         <p id="moduloInfo" class="mb-3"></p>
         <div class="text-center h5 text-danger mb-0" id="moduloPreco"></div>
+        <hr>
+        <label class="form-label">Forma de Pagamento</label>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn btn-outline-primary flex-fill gateway-opt" data-gateway="pix">
+            <i class="bi bi-qr-code"></i> PIX
+          </button>
+          <button class="btn btn-outline-dark flex-fill gateway-opt" data-gateway="card">
+            <i class="bi bi-credit-card"></i> Cartao
+          </button>
+        </div>
+        <input type="hidden" id="moduloGateway" value="pix">
       </div>
       <div class="modal-footer">
         <button class="btn btn-danger w-100" id="btnConfirmarModulo"><i class="bi bi-cart-check"></i> Assinar</button>
@@ -120,9 +142,51 @@
   </div>
 </div>
 
+<!-- Modal PIX QR Code -->
+<div class="modal fade" id="modalPix" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h6 class="mb-0"><i class="bi bi-qr-code"></i> Pagamento PIX</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body text-center">
+        <div id="pixQrCodeContainer" class="mb-3">
+          <div class="spinner-border text-danger" role="status"></div>
+        </div>
+        <p class="small text-muted mb-2">Escaneie o QR Code acima ou copie o codigo abaixo:</p>
+        <div class="input-group mb-2">
+          <input type="text" class="form-control form-control-sm" id="pixCopiaECola" readonly>
+          <button class="btn btn-outline-danger btn-sm" id="btnCopiarPix" onclick="copiarPix()"><i class="bi bi-clipboard"></i></button>
+        </div>
+        <div id="pixStatus" class="small text-muted">Aguardando pagamento...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 let planoSelecionado = null;
 let moduloSelecionado = null;
+let pixPollTimer = null;
+
+// Gateway selection
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.gateway-opt');
+  if (!btn) return;
+  const gateway = btn.dataset.gateway;
+  const container = btn.closest('.modal-body');
+  const hiddenInput = container.querySelector('[id$="Gateway"]');
+  if (hiddenInput) hiddenInput.value = gateway;
+  container.querySelectorAll('.gateway-opt').forEach(b => {
+    b.classList.remove('btn-primary', 'btn-dark');
+    b.classList.add('btn-outline-primary', 'btn-outline-dark');
+  });
+  if (gateway === 'pix') {
+    btn.classList.remove('btn-outline-primary');
+    btn.classList.add('btn-primary');
+  } else {
+    btn.classList.remove('btn-outline-dark');
+    btn.classList.add('btn-dark');
+  }
+});
 
 document.querySelectorAll('.selecionar-plano').forEach(btn => {
   btn.addEventListener('click', function() {
@@ -145,19 +209,80 @@ function atualizarPrecoPlano() {
   document.getElementById('planoPreco').textContent = 'R$ ' + preco.toFixed(2).replace('.', ',') + (ciclo === 'anual' ? ' /ano' : ' /mes');
 }
 
+function mostrarPixModal(pagamento) {
+  const container = document.getElementById('pixQrCodeContainer');
+  const inputPix = document.getElementById('pixCopiaECola');
+  const statusEl = document.getElementById('pixStatus');
+
+  if (pagamento.pixQrCode) {
+    container.innerHTML = '<img src="data:image/png;base64,' + pagamento.pixQrCode + '" class="img-fluid" style="max-width:250px" alt="QR Code PIX">';
+  } else {
+    container.innerHTML = '<div class="border rounded p-4 bg-light"><i class="bi bi-qr-code" style="font-size:4rem"></i></div>';
+  }
+  inputPix.value = pagamento.pixCopiaECola || '';
+  statusEl.textContent = 'Aguardando pagamento...';
+  statusEl.className = 'small text-muted';
+
+  const pixModal = new bootstrap.Modal(document.getElementById('modalPix'));
+  pixModal.show();
+
+  if (pagamento.gatewayId && !pagamento.mock) {
+    startPixPolling(pagamento);
+  }
+}
+
+function startPixPolling(pagamento) {
+  if (pixPollTimer) clearInterval(pixPollTimer);
+  let attempts = 0;
+  pixPollTimer = setInterval(async () => {
+    attempts++;
+    if (attempts > 60) {
+      clearInterval(pixPollTimer);
+      document.getElementById('pixStatus').textContent = 'Tempo esgotado. Recarregue a pagina para gerar novo PIX.';
+      return;
+    }
+    try {
+      const assinatura = await api('/api/assinatura');
+      if (assinatura.ativo) {
+        clearInterval(pixPollTimer);
+        document.getElementById('pixStatus').innerHTML = '<span class="text-success fw-bold"><i class="bi bi-check-circle"></i> Pagamento confirmado!</span>';
+        setTimeout(() => { window.location.reload(); }, 2000);
+      }
+    } catch (_) {}
+  }, 5000);
+}
+
+function copiarPix() {
+  const input = document.getElementById('pixCopiaECola');
+  input.select();
+  input.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.getElementById('btnCopiarPix');
+    btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+    setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard"></i>'; }, 2000);
+  });
+}
+
 document.getElementById('btnConfirmarPlano').addEventListener('click', async function() {
   this.disabled = true;
   this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
   try {
     const data = await api('/api/subscriptions/selecionar', {
       method: 'POST',
-      body: JSON.stringify({ planId: planoSelecionado, ciclo: document.getElementById('planoCiclo').value }),
+      body: JSON.stringify({
+        planId: planoSelecionado,
+        ciclo: document.getElementById('planoCiclo').value,
+        gateway: document.getElementById('planoGateway').value,
+      }),
     });
     bootstrap.Modal.getInstance(document.getElementById('modalPlano')).hide();
-    if (data.pagamento?.qrCode) {
-      alert('Pagamento via PIX:\n' + data.pagamento.qrCode);
+    if (data.pagamento?.pixCopiaECola) {
+      mostrarPixModal(data.pagamento);
+    } else if (data.pagamento?.checkoutUrl) {
+      window.location.href = data.pagamento.checkoutUrl;
+    } else {
+      window.location.href = data.redirect || '/admin';
     }
-    window.location.href = data.redirect || '/admin';
   } catch (err) {
     alert('Erro: ' + err.message);
   } finally {
@@ -182,13 +307,20 @@ document.getElementById('btnConfirmarModulo').addEventListener('click', async fu
   try {
     const data = await api('/api/marketplace/assinar-modulo', {
       method: 'POST',
-      body: JSON.stringify({ moduleSlug: moduloSelecionado, ciclo: 'mensal' }),
+      body: JSON.stringify({
+        moduleSlug: moduloSelecionado,
+        ciclo: 'mensal',
+        gateway: document.getElementById('moduloGateway').value,
+      }),
     });
     bootstrap.Modal.getInstance(document.getElementById('modalModulo')).hide();
-    if (data.pagamento?.qrCode) {
-      alert('Pagamento via PIX:\n' + data.pagamento.qrCode);
+    if (data.pagamento?.pixCopiaECola) {
+      mostrarPixModal(data.pagamento);
+    } else if (data.pagamento?.checkoutUrl) {
+      window.location.href = data.pagamento.checkoutUrl;
+    } else {
+      window.location.reload();
     }
-    window.location.reload();
   } catch (err) {
     alert('Erro: ' + err.message);
   } finally {

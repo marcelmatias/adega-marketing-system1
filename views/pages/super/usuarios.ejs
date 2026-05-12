@@ -1,0 +1,50 @@
+<%- include('../../partials/header') %>
+<%- include('../../partials/navbar') %>
+
+<div class="container-fluid p-4">
+  <h4 class="mb-4"><i class="bi bi-people"></i> Usuarios</h4>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="list-group">
+        <a href="/admin/super" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/admin/super/configuracoes" class="list-group-item list-group-item-action"><i class="bi bi-gear"></i> Configuracoes</a>
+        <a href="/admin/super/adegas" class="list-group-item list-group-item-action"><i class="bi bi-shop"></i> Adegas</a>
+        <a href="/admin/super/usuarios" class="list-group-item list-group-item-action active"><i class="bi bi-people"></i> Usuarios</a>
+        <a href="/admin/super/planos" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Planos</a>
+        <a href="/admin/super/modulos" class="list-group-item list-group-item-action"><i class="bi bi-puzzle"></i> Modulos</a>
+        <a href="/admin/super/pagamentos" class="list-group-item list-group-item-action"><i class="bi bi-credit-card"></i> Pagamentos</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><h6 class="mb-0">Todos os Usuarios</h6></div>
+        <div class="card-body p-0">
+          <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Nome</th><th>Email</th><th>Role</th><th>Provedor</th><th>Ativo</th><th>Criado em</th><th>Acoes</th></tr></thead><tbody id="listaUsuarios"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+api('/api/super/usuarios').then(users => {
+  const tbody = document.getElementById('listaUsuarios');
+  users.forEach(u => {
+    tbody.innerHTML += '<tr><td>' + u.nome + '</td><td>' + u.email + '</td><td><span class="badge bg-' + (u.role === 'superadmin' ? 'dark' : u.role === 'admin' ? 'danger' : 'secondary') + '">' + u.role + '</span></td><td>' + (u.socialProvider || 'local') + '</td><td><span class="badge bg-' + (u.ativo ? 'success' : 'secondary') + '">' + (u.ativo ? 'Sim' : 'Nao') + '</span></td><td>' + new Date(u.createdAt).toLocaleDateString('pt-BR') + '</td><td><button class="btn btn-sm btn-outline-info" onclick="editarUsuario(\'' + u._id + '\',\'' + u.nome + '\',\'' + u.email + '\',\'' + u.role + '\',' + u.ativo + ')"><i class="bi bi-pencil"></i></button></td></tr>';
+  });
+});
+
+function editarUsuario(id, nome, email, role, ativo) {
+  const novoNome = prompt('Nome:', nome);
+  if (!novoNome) return;
+  const novoEmail = prompt('Email:', email);
+  if (!novoEmail) return;
+  const novaRole = prompt('Role (superadmin/admin/staff/viewer):', role);
+  if (!novaRole) return;
+  api('/api/super/usuarios/' + id, {
+    method: 'PUT',
+    body: JSON.stringify({ nome: novoNome, email: novoEmail, role: novaRole }),
+  }).then(() => location.reload()).catch(err => alert(err.message));
+}
+</script>
+<%- include('../../partials/footer') %>

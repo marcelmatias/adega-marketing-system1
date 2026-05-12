@@ -4,6 +4,7 @@ const path = require('path');
 const { generateSlides } = require('../services/slideService');
 const { getActiveStreamInfo, startStream, stopStream } = require('../services/streamService');
 const logger = require('../utils/logger');
+const { exportProdutosCSV, exportProdutosPDF } = require('../services/exportService');
 
 const SLIDES_DIR = path.join(__dirname, '..', 'public', 'uploads', 'live');
 
@@ -96,6 +97,44 @@ exports.estoqueBaixo = async (req, res) => {
       $expr: { $lte: ['$estoque', '$estoqueMinimo'] },
     }).sort({ estoque: 1 });
     res.json({ produtos });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.exportarCSV = async (req, res) => {
+  try {
+    const { categoria, ativo, busca } = req.query;
+    const filter = { adegaId: req.adegaId };
+    if (categoria) filter.categoria = categoria;
+    if (ativo !== undefined) filter.ativo = ativo === 'true';
+    if (busca) filter.nome = { $regex: busca, $options: 'i' };
+
+    const produtos = await Product.find(filter).sort({ nome: 1 }).lean();
+    const csv = exportProdutosCSV(produtos);
+    const filename = `produtos-${Date.now()}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send('\uFEFF' + csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.exportarPDF = async (req, res) => {
+  try {
+    const { categoria, ativo, busca } = req.query;
+    const filter = { adegaId: req.adegaId };
+    if (categoria) filter.categoria = categoria;
+    if (ativo !== undefined) filter.ativo = ativo === 'true';
+    if (busca) filter.nome = { $regex: busca, $options: 'i' };
+
+    const produtos = await Product.find(filter).sort({ nome: 1 }).lean();
+    const pdf = await exportProdutosPDF(produtos, `Total: ${produtos.length} produtos`);
+    const filename = `produtos-${Date.now()}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(pdf);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

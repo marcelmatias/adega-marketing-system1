@@ -4,9 +4,20 @@
 <div class="container-fluid p-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0"><i class="bi bi-coin"></i> Financeiro</h4>
-    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#financeModal" onclick="resetFinanceForm()">
-      <i class="bi bi-plus-lg"></i> Novo Registro
-    </button>
+    <div class="d-flex gap-2">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+          <i class="bi bi-download"></i> Exportar
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#" onclick="exportar('csv')"><i class="bi bi-filetype-csv"></i> CSV</a></li>
+          <li><a class="dropdown-item" href="#" onclick="exportar('pdf')"><i class="bi bi-filetype-pdf"></i> PDF</a></li>
+        </ul>
+      </div>
+      <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#financeModal" onclick="resetFinanceForm()">
+        <i class="bi bi-plus-lg"></i> Novo Registro
+      </button>
+    </div>
   </div>
 
   <div class="row g-3 mb-3" id="fluxoResumo">
@@ -141,6 +152,17 @@ async function loadFinanceiro() {
 
 function resetFinanceForm() { document.getElementById('financeForm').reset(); }
 async function deleteFinance(id) { if (!confirm('Remover?')) return; await api('/api/financeiro/' + id, { method: 'DELETE' }); loadFinanceiro(); }
+
+function exportar(format) {
+  const params = new URLSearchParams({ limit: 10000 });
+  const start = document.getElementById('fStart').value;
+  const end = document.getElementById('fEnd').value;
+  const tipo = document.getElementById('fTipo').value;
+  if (start) params.set('startDate', start);
+  if (end) params.set('endDate', end);
+  if (tipo) params.set('tipo', tipo);
+  window.open(`/api/financeiro/exportar/${format}?${params}`, '_blank');
+}
 
 document.getElementById('financeForm').addEventListener('submit', async (e) => {
   e.preventDefault();

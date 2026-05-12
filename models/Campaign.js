@@ -35,4 +35,8 @@ const campaignSchema = new mongoose.Schema({
   duracaoPadraoImagem: { type: Number, default: 5, min: 1 },
 }, { timestamps: true });
 
+campaignSchema.index({ adegaId: 1, status: 1, tipo: 1, createdAt: -1 });
+campaignSchema.index({ adegaId: 1, status: 1, urlYoutube: 1 });
+campaignSchema.index({ adegaId: 1, ativoNaTV: 1 });
+
 module.exports = mongoose.model('Campaign', campaignSchema);

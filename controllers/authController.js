@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
       { expiresIn: jwtConfig.expiresIn }
     );
     sessionLogin(req, user);
-    logger.info(`Login API: ${user.email}`);
+    logger.info(`Login API OK: ${user.role}`);
     res.json({ token, user: user.toJSON() });
   } catch (err) {
     logger.error(`Erro no login API: ${err.message}`);
@@ -79,18 +79,28 @@ exports.me = async (req, res) => {
 
 exports.registrar = async (req, res) => {
   try {
-    const { nome, email, senha, role, adegaId } = req.body;
+    const { nome, email, senha, adegaId } = req.body;
     if (!nome || !email || !senha) {
       return res.status(400).json({ error: 'Nome, email e senha obrigatorios' });
     }
+    if (!adegaId && (!req.session?.user?.adegaId)) {
+      return res.status(400).json({ error: 'Adega nao informada' });
+    }
     const existe = await User.findOne({ email: email.toLowerCase().trim() });
     if (existe) return res.status(400).json({ error: 'Email ja cadastrado' });
-    const user = await User.create({ nome, email: email.toLowerCase().trim(), senha, role: role || 'staff', adegaId });
+    const adega = adegaId || req.session?.user?.adegaId;
+    const user = await User.create({
+      nome,
+      email: email.toLowerCase().trim(),
+      senha,
+      role: 'staff',
+      adegaId: adega,
+    });
     logger.info(`Usuario criado: ${user.email}`);
     res.status(201).json({ user: user.toJSON() });
   } catch (err) {
     logger.error(`Erro ao registrar: ${err.message}`);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: 'Erro ao criar usuario' });
   }
 };
 
